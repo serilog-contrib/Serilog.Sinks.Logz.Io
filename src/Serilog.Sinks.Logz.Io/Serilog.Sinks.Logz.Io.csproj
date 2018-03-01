@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Mantas Audickas</Authors>
+    <Company />
+    <Description>Serilog event sink that sends logs to Logz.io.</Description>
+    <PackageProjectUrl>https://serilog.net/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</RepositoryUrl>
+    <PackageTags>Serilog LogzIo</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
+    <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.1.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='net45'">
+    <PackageReference Include="System.Net.Http" Version="4.1.0" />
+  </ItemGroup>
+</Project>
