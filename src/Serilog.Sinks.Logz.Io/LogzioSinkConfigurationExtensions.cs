@@ -32,28 +32,13 @@ namespace Serilog
         /// <param name="sinkConfiguration">The logger configuration.</param>
         /// <param name="authToken">The token for your logzio account.</param>
         /// <param name="type">Your log type - it helps classify the logs you send.</param>
-        /// <param name="batchPostingLimit">
-        /// The maximum number of events to post in a single batch. The default is
-        /// <see cref="LogzioSink.DefaultBatchPostingLimit"/>.
-        /// </param>
-        /// <param name="period">
-        /// The time to wait between checking for event batches. The default is
-        /// <see cref="LogzioSink.DefaultPeriod"/>.
-        /// </param>
-        /// <param name="restrictedToMinimumLevel">
-        /// The minimum level for events passed through the sink. The default is
-        /// <see cref="LevelAlias.Minimum"/>.
-        /// </param>
-        /// <param name="useHttps">Use HTTPS</param>
+        /// <param name="options">Logzio configuration options</param>
         /// <returns>Logger configuration, allowing configuration to continue.</returns>
         public static LoggerConfiguration LogzIo(
             this LoggerSinkConfiguration sinkConfiguration,
             string authToken,
             string type,
-            int? batchPostingLimit = null,
-            TimeSpan? period = null,
-            LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
-            bool useHttps = false)
+            LogzioOptions options)
         {
             if (sinkConfiguration == null)
                 throw new ArgumentNullException(nameof(sinkConfiguration));
@@ -63,11 +48,11 @@ namespace Serilog
                 client,
                 authToken,
                 type,
-                batchPostingLimit ?? LogzioSink.DefaultBatchPostingLimit,
-                period ?? LogzioSink.DefaultPeriod,
-                useHttps);
+                options?.BatchPostingLimit ?? LogzioSink.DefaultBatchPostingLimit,
+                options?.Period ?? LogzioSink.DefaultPeriod,
+                options?.UseHttps ?? false);
 
-            return sinkConfiguration.Sink(sink, restrictedToMinimumLevel);
+            return sinkConfiguration.Sink(sink, options?.RestrictedToMinimumLevel ?? LogEventLevel.Verbose);
         }
     }
 }

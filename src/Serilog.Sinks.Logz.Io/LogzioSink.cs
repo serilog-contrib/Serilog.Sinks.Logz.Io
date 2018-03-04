@@ -134,8 +134,8 @@ namespace Serilog.Sinks.Logz.Io
                 {"@timestamp", loggingEvent.Timestamp.ToString("O")},
                 {"level", loggingEvent.Level.ToString()},
                 {"message", loggingEvent.RenderMessage()},
-                {"exception", loggingEvent.Exception?.ToString()},
                 {"exception.Message", loggingEvent.Exception?.Message},
+                {"exception", loggingEvent.Exception},
                 {"processId", ProcessId}
             };
 
