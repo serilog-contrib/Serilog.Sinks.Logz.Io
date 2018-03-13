@@ -18,7 +18,7 @@ namespace Serilog.Sinks.Logz.Io
         /// <summary>
         /// The minimum level for events passed through the sink. The default is <see cref="LogEventLevel.Verbose"/>.
         /// </summary>
-        public LogEventLevel RestrictedToMinimumLevel { get; set; }
+        public LogEventLevel? RestrictedToMinimumLevel { get; set; }
 
         /// <summary>
         /// Use https

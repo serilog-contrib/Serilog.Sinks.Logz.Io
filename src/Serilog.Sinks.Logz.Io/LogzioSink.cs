@@ -14,18 +14,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Sinks.Logz.Io.Client;
 using Serilog.Sinks.PeriodicBatching;
-using static System.String;
-using static Newtonsoft.Json.Formatting;
-using static Newtonsoft.Json.JsonConvert;
 
 namespace Serilog.Sinks.Logz.Io
 {
@@ -34,7 +31,6 @@ namespace Serilog.Sinks.Logz.Io
     /// </summary>
     public sealed class LogzioSink : PeriodicBatchingSink
     {
-        private static readonly string ProcessId = Process.GetCurrentProcess().Id.ToString();
         private IHttpClient _client;
         private readonly string _requestUri;
 
@@ -77,7 +73,7 @@ namespace Serilog.Sinks.Logz.Io
 
             _client = client ?? throw new ArgumentNullException(nameof(client));
 
-            _requestUri = useHttps ? Format(LogzIoHttpsUrl, authToken, type) : Format(LogzIoHttpUrl, authToken, type);
+            _requestUri = useHttps ? string.Format(LogzIoHttpsUrl, authToken, type) : string.Format(LogzIoHttpUrl, authToken, type);
         }
 
         #region PeriodicBatchingSink Members
@@ -124,7 +120,7 @@ namespace Serilog.Sinks.Logz.Io
                 .Select(FormatLogEvent)
                 .ToArray();
 
-            return Join(",\n", result);
+            return string.Join(",\n", result);
         }
 
         private string FormatLogEvent(LogEvent loggingEvent)
@@ -132,18 +128,16 @@ namespace Serilog.Sinks.Logz.Io
             var values = new Dictionary<string, object>
             {
                 {"@timestamp", loggingEvent.Timestamp.ToString("O")},
-                {"level", loggingEvent.Level.ToString()},
-                {"message", loggingEvent.RenderMessage()},
-                {"exception.Message", loggingEvent.Exception?.Message},
-                {"exception", loggingEvent.Exception},
-                {"processId", ProcessId}
+                {"Level", loggingEvent.Level.ToString()},
+                {"Message", loggingEvent.RenderMessage()},
+                {"Exception", loggingEvent.Exception}
             };
 
             if (loggingEvent.Properties != null)
             {
                 if (loggingEvent.Properties.TryGetValue("SourceContext", out var sourceContext))
                 {
-                    values["logger"] = sourceContext;
+                    values["Logger"] = sourceContext.ToString();
                 }
 
                 foreach (var property in loggingEvent.Properties)
@@ -152,7 +146,7 @@ namespace Serilog.Sinks.Logz.Io
                 }
             }
 
-            return SerializeObject(values, None);
+            return JsonConvert.SerializeObject(values, Newtonsoft.Json.Formatting.None);
         }
     }
 }

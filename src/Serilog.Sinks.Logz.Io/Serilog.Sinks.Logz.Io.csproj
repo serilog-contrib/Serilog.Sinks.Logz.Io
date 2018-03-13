@@ -1,15 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard1.4;net45</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Mantas Audickas</Authors>
     <Company />
     <Description>Serilog event sink that sends logs to Logz.io.</Description>
-    <PackageProjectUrl>https://serilog.net/</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</RepositoryUrl>
     <PackageTags>Serilog LogzIo</PackageTags>
-    <Version>1.1.0</Version>
+    <Version>1.2.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +18,6 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net45'">
-    <PackageReference Include="System.Net.Http" Version="4.1.0" />
+    <PackageReference Include="System.Net.Http" Version="4.3.3" />
   </ItemGroup>
 </Project>
