@@ -38,7 +38,7 @@ namespace Serilog
             this LoggerSinkConfiguration sinkConfiguration,
             string authToken,
             string type,
-            LogzioOptions options)
+            LogzioOptions options = null)
         {
             if (sinkConfiguration == null)
                 throw new ArgumentNullException(nameof(sinkConfiguration));
@@ -50,7 +50,7 @@ namespace Serilog
                 type,
                 options?.BatchPostingLimit ?? LogzioSink.DefaultBatchPostingLimit,
                 options?.Period ?? LogzioSink.DefaultPeriod,
-                options?.UseHttps ?? false);
+                options?.UseHttps ?? true);
 
             return sinkConfiguration.Sink(sink, options?.RestrictedToMinimumLevel ?? LogEventLevel.Verbose);
         }

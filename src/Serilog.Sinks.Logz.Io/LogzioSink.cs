@@ -65,7 +65,7 @@ namespace Serilog.Sinks.Logz.Io
             string type,
             int batchPostingLimit,
             TimeSpan period,
-            bool useHttps = false)
+            bool useHttps = true)
             : base(batchPostingLimit, period)
         {
             if (authToken == null)
