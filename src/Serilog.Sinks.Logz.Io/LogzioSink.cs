@@ -142,11 +142,23 @@ namespace Serilog.Sinks.Logz.Io
 
                 foreach (var property in loggingEvent.Properties)
                 {
-                    values[$"Properties.{property.Key}"] = property.Value.ToString();
+                    values[$"Properties.{property.Key}"] = GetPropertyInternalValue(property.Value);
                 }
             }
 
             return JsonConvert.SerializeObject(values, Newtonsoft.Json.Formatting.None);
+        }
+
+        private static Object GetPropertyInternalValue(LogEventPropertyValue propertyValue)
+        {
+            switch (propertyValue)
+            {
+                case ScalarValue sv: return sv.Value;
+                case SequenceValue sv: return sv.Elements;
+                case DictionaryValue dv: return dv.Elements;
+                case StructureValue sv: return sv.ToString();
+            }
+            return propertyValue.ToString();
         }
     }
 }
