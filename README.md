@@ -23,7 +23,7 @@ In the following example, the sink will POST log events to https://app.logz.io o
 ```csharp
 ILogger log = new LoggerConfiguration()
   .MinimumLevel.Verbose()
-  .WriteTo.LogzIo("<logzio token>", "<environment>", useHttps: true)
+  .WriteTo.LogzIo("<logzio token>", "<environment>", new LogzioOptions { UseHttps = true })
   .CreateLogger();
 
 log.Information("Logging {@Heartbeat} from {Computer}", heartbeat, computer);

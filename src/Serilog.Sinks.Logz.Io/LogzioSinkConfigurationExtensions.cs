@@ -32,6 +32,26 @@ namespace Serilog
         /// <param name="sinkConfiguration">The logger configuration.</param>
         /// <param name="authToken">The token for your logzio account.</param>
         /// <param name="type">Your log type - it helps classify the logs you send.</param>
+        /// <param name="useHttps">Specifies to use https (default is true)</param>
+        /// <returns>Logger configuration, allowing configuration to continue.</returns>
+        public static LoggerConfiguration LogzIo(
+            this LoggerSinkConfiguration sinkConfiguration,
+            string authToken,
+            string type,
+            bool useHttps = true)
+        {
+            return LogzIo(sinkConfiguration, authToken, type, new LogzioOptions
+            {
+                UseHttps = useHttps
+            });
+        }
+
+        /// <summary>
+        /// Adds a sink that sends log events using HTTP POST over the network.
+        /// </summary>
+        /// <param name="sinkConfiguration">The logger configuration.</param>
+        /// <param name="authToken">The token for your logzio account.</param>
+        /// <param name="type">Your log type - it helps classify the logs you send.</param>
         /// <param name="options">Logzio configuration options</param>
         /// <returns>Logger configuration, allowing configuration to continue.</returns>
         public static LoggerConfiguration LogzIo(
@@ -50,7 +70,7 @@ namespace Serilog
                 type,
                 options?.BatchPostingLimit ?? LogzioSink.DefaultBatchPostingLimit,
                 options?.Period ?? LogzioSink.DefaultPeriod,
-                options?.UseHttps ?? false);
+                options?.UseHttps ?? true);
 
             return sinkConfiguration.Sink(sink, options?.RestrictedToMinimumLevel ?? LogEventLevel.Verbose);
         }
