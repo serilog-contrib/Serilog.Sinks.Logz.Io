@@ -2,6 +2,9 @@
 
 [![NuGet Version](http://img.shields.io/nuget/v/Serilog.Sinks.Logz.Io.svg?style=flat)](https://www.nuget.org/packages/Serilog.Sinks.Logz.Io/) 
 [![NuGet](https://img.shields.io/nuget/dt/Serilog.Sinks.Logz.Io.svg)](https://www.nuget.org/packages/Serilog.Sinks.Logz.Io/)
+[![Documentation](https://img.shields.io/badge/docs-wiki-yellow.svg)](https://github.com/serilog/serilog/wiki)
+[![Join the chat at https://gitter.im/serilog/serilog](https://img.shields.io/gitter/room/serilog/serilog.svg)](https://gitter.im/serilog/serilog)
+[![Help](https://img.shields.io/badge/stackoverflow-serilog-orange.svg)](http://stackoverflow.com/questions/tagged/serilog)
 
 __Package__ - [Serilog.Sinks.Logz.Io](https://www.nuget.org/packages/Serilog.Sinks.Logz.Io)
 | __Platforms__ - .NET 4.5, .NET Standard 2.0
@@ -20,7 +23,7 @@ In the following example, the sink will POST log events to https://app.logz.io o
 ```csharp
 ILogger log = new LoggerConfiguration()
   .MinimumLevel.Verbose()
-  .WriteTo.LogzIo("<logzio token>", "<log type>")
+  .WriteTo.LogzIo("<logzio token>", "<environment>", new LogzioOptions { UseHttps = true })
   .CreateLogger();
 
 log.Information("Logging {@Heartbeat} from {Computer}", heartbeat, computer);
@@ -32,6 +35,6 @@ If you want to include the HTTP sink in your project, you can [install it direct
 
 To install the sink, run the following command in the Package Manager Console:
 
-```powershell
+```
 PM> Install-Package Serilog.Sinks.Logz.Io
 ```
