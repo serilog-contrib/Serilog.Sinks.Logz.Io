@@ -23,7 +23,7 @@ In the following example, the sink will POST log events to https://app.logz.io o
 ```csharp
 ILogger log = new LoggerConfiguration()
   .MinimumLevel.Verbose()
-  .WriteTo.LogzIo("<logzio token>", "<environment>", useHttps: true)
+  .WriteTo.LogzIo("<logzio token>", "<log type>")
   .CreateLogger();
 
 log.Information("Logging {@Heartbeat} from {Computer}", heartbeat, computer);
@@ -35,6 +35,6 @@ If you want to include the HTTP sink in your project, you can [install it direct
 
 To install the sink, run the following command in the Package Manager Console:
 
-```
+```powershell
 PM> Install-Package Serilog.Sinks.Logz.Io
 ```
