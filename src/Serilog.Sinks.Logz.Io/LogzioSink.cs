@@ -128,21 +128,21 @@ namespace Serilog.Sinks.Logz.Io
             var values = new Dictionary<string, object>
             {
                 {"@timestamp", loggingEvent.Timestamp.ToString("O")},
-                {"Level", loggingEvent.Level.ToString()},
-                {"Message", loggingEvent.RenderMessage()},
-                {"Exception", loggingEvent.Exception}
+                {"level", loggingEvent.Level.ToString()},
+                {"message", loggingEvent.RenderMessage()},
+                {"exception", loggingEvent.Exception}
             };
 
             if (loggingEvent.Properties != null)
             {
                 if (loggingEvent.Properties.TryGetValue("SourceContext", out var sourceContext))
                 {
-                    values["Logger"] = sourceContext.ToString();
+                    values["logger"] = sourceContext.ToString();
                 }
 
                 foreach (var property in loggingEvent.Properties)
                 {
-                    values[$"Properties.{property.Key}"] = GetPropertyInternalValue(property.Value);
+                    values[$"properties.{property.Key}"] = GetPropertyInternalValue(property.Value);
                 }
             }
 
