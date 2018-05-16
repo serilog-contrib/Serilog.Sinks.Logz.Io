@@ -9,7 +9,8 @@
     <PackageProjectUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</RepositoryUrl>
     <PackageTags>Serilog LogzIo</PackageTags>
-    <Version>1.2.2</Version>
+    <Version>1.2.4</Version>
+    <PackageReleaseNotes>- https now becomes as default protocol</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
