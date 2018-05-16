@@ -139,6 +139,10 @@ namespace Serilog.Sinks.Logz.Io
                 {
                     values["logger"] = sourceContext.ToString();
                 }
+                if (loggingEvent.Properties.TryGetValue("ThreadId", out var threadId))
+                {
+                    values["thread"] = GetPropertyInternalValue(threadId);
+                }
 
                 foreach (var property in loggingEvent.Properties)
                 {
