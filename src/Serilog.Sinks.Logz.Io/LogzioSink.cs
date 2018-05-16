@@ -149,7 +149,7 @@ namespace Serilog.Sinks.Logz.Io
             return JsonConvert.SerializeObject(values, Newtonsoft.Json.Formatting.None);
         }
 
-        private static Object GetPropertyInternalValue(LogEventPropertyValue propertyValue)
+        private static object GetPropertyInternalValue(LogEventPropertyValue propertyValue)
         {
             switch (propertyValue)
             {
