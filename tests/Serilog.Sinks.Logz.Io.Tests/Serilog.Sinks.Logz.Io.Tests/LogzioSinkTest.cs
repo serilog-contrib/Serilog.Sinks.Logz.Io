@@ -55,6 +55,8 @@ namespace Serilog.Sinks.Logz.Io.Tests
                 .Enrich.WithProperty("PropFloat2", -43.5)
                 .Enrich.WithProperty("PropBool1", false)
                 .Enrich.WithProperty("PropBool2", true)
+                .Enrich.WithProperty("PropEnum1", DateTimeKind.Utc)
+                .Enrich.WithProperty("PropEnum2", StringComparison.CurrentCultureIgnoreCase)
                 .Enrich.WithProperty("PropArr1", new[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0})
                 .Enrich.WithProperty("PropArr2", new[] {"banana", "apple", "lemon"})
                 .Enrich.WithProperty("PropArr3", new object[] {1, "banana", 3.5, false})
@@ -87,7 +89,8 @@ namespace Serilog.Sinks.Logz.Io.Tests
             dataDic.Should().ContainKeys("properties.PropStr1", "properties.PropInt1", "properties.PropInt2", 
                                          "properties.PropBool1", "properties.PropArr1", "properties.PropArr2", 
                                          "properties.PropObj1", "properties.PropObj2", "properties.PropNull1", 
-                                         "properties.PropDic1", "properties.PropFloat1", "properties.PropFloat2", "properties.PropArr3");
+                                         "properties.PropDic1", "properties.PropFloat1", "properties.PropFloat2", 
+                                         "properties.PropArr3", "properties.PropEnum1", "properties.PropEnum2");
 
             dataDic["properties.PropStr1"].Should().Be("banana");
             dataDic["properties.PropInt1"].Should().Be(42);
@@ -97,6 +100,8 @@ namespace Serilog.Sinks.Logz.Io.Tests
             dataDic["properties.PropBool1"].Should().Be(false);
             dataDic["properties.PropBool2"].Should().Be(true);
             dataDic["properties.PropNull1"].Should().BeNull();
+            dataDic["properties.PropEnum1"].Should().Be(DateTimeKind.Utc.ToString());
+            dataDic["properties.PropEnum2"].Should().Be(StringComparison.CurrentCultureIgnoreCase.ToString());
 
             var dataDinamic = JObject.Parse(data);
             dataDinamic["properties.PropStr1"].Should().BeNullOrEmpty();
