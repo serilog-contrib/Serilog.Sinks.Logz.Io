@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serilog.Sinks.Logz.Io", "src\Serilog.Sinks.Logz.Io\Serilog.Sinks.Logz.Io.csproj", "{98B4B46C-E1C2-4837-A627-CF0C87519B7C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Sinks.Logz.Io.Tests", "tests\Serilog.Sinks.Logz.Io.Tests\Serilog.Sinks.Logz.Io.Tests\Serilog.Sinks.Logz.Io.Tests.csproj", "{D55229A9-D4A7-4838-88AD-53190EEDE5AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{98B4B46C-E1C2-4837-A627-CF0C87519B7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98B4B46C-E1C2-4837-A627-CF0C87519B7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98B4B46C-E1C2-4837-A627-CF0C87519B7C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D55229A9-D4A7-4838-88AD-53190EEDE5AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D55229A9-D4A7-4838-88AD-53190EEDE5AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D55229A9-D4A7-4838-88AD-53190EEDE5AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D55229A9-D4A7-4838-88AD-53190EEDE5AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

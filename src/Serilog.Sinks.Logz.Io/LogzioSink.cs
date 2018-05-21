@@ -65,7 +65,7 @@ namespace Serilog.Sinks.Logz.Io
             string type,
             int batchPostingLimit,
             TimeSpan period,
-            bool useHttps = false)
+            bool useHttps = true)
             : base(batchPostingLimit, period)
         {
             if (authToken == null)
@@ -128,25 +128,51 @@ namespace Serilog.Sinks.Logz.Io
             var values = new Dictionary<string, object>
             {
                 {"@timestamp", loggingEvent.Timestamp.ToString("O")},
-                {"Level", loggingEvent.Level.ToString()},
-                {"Message", loggingEvent.RenderMessage()},
-                {"Exception", loggingEvent.Exception}
+                {"level", loggingEvent.Level.ToString()},
+                {"message", loggingEvent.RenderMessage()},
+                {"exception", loggingEvent.Exception}
             };
 
             if (loggingEvent.Properties != null)
             {
                 if (loggingEvent.Properties.TryGetValue("SourceContext", out var sourceContext))
                 {
-                    values["Logger"] = sourceContext.ToString();
+                    values["logger"] = sourceContext.ToString();
+                }
+                if (loggingEvent.Properties.TryGetValue("ThreadId", out var threadId))
+                {
+                    values["thread"] = GetPropertyInternalValue(threadId);
                 }
 
                 foreach (var property in loggingEvent.Properties)
                 {
-                    values[$"Properties.{property.Key}"] = property.Value.ToString();
+                    values[$"properties.{property.Key}"] = GetPropertyInternalValue(property.Value);
                 }
             }
 
             return JsonConvert.SerializeObject(values, Newtonsoft.Json.Formatting.None);
+        }
+
+        private static object GetPropertyInternalValue(LogEventPropertyValue propertyValue)
+        {
+            switch (propertyValue)
+            {
+                case ScalarValue sv: return GetInternalValue(sv.Value);
+                case SequenceValue sv: return sv.Elements.Select(GetPropertyInternalValue).ToArray();
+                case DictionaryValue dv: return dv.Elements.Select( kv => new { Key = kv.Key.Value,  Value = GetPropertyInternalValue(kv.Value) }).ToDictionary(i => i.Key, i => i.Value);
+                case StructureValue sv: return sv.Properties.Select(kv => new { Key = kv.Name, Value = GetPropertyInternalValue(kv.Value) }).ToDictionary(i => i.Key, i => i.Value);
+            }
+            return propertyValue.ToString();
+        }
+
+        private static object GetInternalValue(object value)
+        {
+            switch (value)
+            {
+                case Enum e: return e.ToString();
+            }
+
+            return value;
         }
     }
 }

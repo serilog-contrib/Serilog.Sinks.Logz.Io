@@ -23,6 +23,6 @@ namespace Serilog.Sinks.Logz.Io
         /// <summary>
         /// Use https
         /// </summary>
-        public bool UseHttps { get; set; }
+        public bool UseHttps { get; set; } = true;
     }
 }

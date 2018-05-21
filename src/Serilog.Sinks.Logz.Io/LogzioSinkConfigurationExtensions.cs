@@ -58,7 +58,7 @@ namespace Serilog
             this LoggerSinkConfiguration sinkConfiguration,
             string authToken,
             string type,
-            LogzioOptions options)
+            LogzioOptions options = null)
         {
             if (sinkConfiguration == null)
                 throw new ArgumentNullException(nameof(sinkConfiguration));
