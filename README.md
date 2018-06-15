@@ -18,17 +18,32 @@ __Package__ - [Serilog.Sinks.Logz.Io](https://www.nuget.org/packages/Serilog.Sin
 
 ## Super simple to use
 
-In the following example, the sink will POST log events to https://app.logz.io over HTTP.
+In the following example, the sink will POST log events to https://app.logz.io over HTTPS.
 
 ```csharp
 ILogger log = new LoggerConfiguration()
   .MinimumLevel.Verbose()
-  .WriteTo.LogzIo("<logzio token>", "<log type>")
+  .WriteTo.LogzIo("<logzio token>", "<log type>", useHttps: true)
   .CreateLogger();
 
 log.Information("Logging {@Heartbeat} from {Computer}", heartbeat, computer);
 ```
 
+More advanced configuration is also available:
+
+```csharp
+ILogger log = new LoggerConfiguration()
+  .MinimumLevel.Verbose()
+  .WriteTo.LogzIo("<logzio token>", "<log type>",
+    new LogzioOptions 
+    { 
+        UseHttps = true, 
+        RestrictedToMinimumLevel = LogEventLevel.Debug,
+        Period = TimeSpan.FromSeconds(15),
+        BatchPostingLimit = 50
+    })
+  .CreateLogger();
+```
 ## Install via NuGet
 
 If you want to include the HTTP sink in your project, you can [install it directly from NuGet](https://www.nuget.org/packages/Serilog.Sinks.Logz.Io/).
