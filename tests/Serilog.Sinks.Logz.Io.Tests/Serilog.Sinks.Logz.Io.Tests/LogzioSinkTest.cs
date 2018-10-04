@@ -114,5 +114,32 @@ namespace Serilog.Sinks.Logz.Io.Tests
             //TODO More Test for other Props
 
         }
+
+        [Fact]
+        public async Task BoostedPropertiesEndUpDirectlyOnEvent()
+        {
+            //Arrange
+            var httpData = new List<HttpContent>();
+            var log = new LoggerConfiguration()
+                .WriteTo.Sink(new LogzioSink(new GoodFakeHttpClient(httpData), "testAuthCode", "testTyoe", 100, TimeSpan.FromSeconds(1), boostProperties: true))
+                .Enrich.WithProperty("EnrichedProperty", "banana")
+                .CreateLogger();
+
+            //Act
+            var logMsg = "This a Information Log Trace {MessageTemplateProperty}";
+            log.Information(logMsg, "pear");
+            log.Dispose();
+
+            //Assert
+            httpData.Should().NotBeNullOrEmpty();
+            httpData.Should().HaveCount(1);
+
+            var data = await httpData.Single().ReadAsStringAsync();
+            data.Should().NotBeNullOrWhiteSpace();
+            var dataDic = JsonConvert.DeserializeObject<Dictionary<string, string>>(data);
+                      
+            dataDic["EnrichedProperty"].Should().Be("banana");
+            dataDic["MessageTemplateProperty"].Should().Be("pear");
+        }
     }
 }

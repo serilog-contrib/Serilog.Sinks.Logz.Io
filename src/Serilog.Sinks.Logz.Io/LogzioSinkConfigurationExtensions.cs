@@ -38,11 +38,13 @@ namespace Serilog
             this LoggerSinkConfiguration sinkConfiguration,
             string authToken,
             string type,
-            bool useHttps = true)
+            bool useHttps = true,
+            bool boostProperties = false)
         {
             return LogzIo(sinkConfiguration, authToken, type, new LogzioOptions
             {
-                UseHttps = useHttps
+                UseHttps = useHttps,
+                BoostProperties = boostProperties
             });
         }
 
@@ -70,7 +72,8 @@ namespace Serilog
                 type,
                 options?.BatchPostingLimit ?? LogzioSink.DefaultBatchPostingLimit,
                 options?.Period ?? LogzioSink.DefaultPeriod,
-                options?.UseHttps ?? true);
+                options?.UseHttps ?? true,
+                options?.BoostProperties ?? false);
 
             return sinkConfiguration.Sink(sink, options?.RestrictedToMinimumLevel ?? LogEventLevel.Verbose);
         }
