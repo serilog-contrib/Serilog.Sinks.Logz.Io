@@ -33,6 +33,7 @@ namespace Serilog.Sinks.Logz.Io
     {
         private IHttpClient _client;
         private readonly string _requestUri;
+        private readonly bool _boostProperties;
 
         /// <summary>
         /// The default batch posting limit.
@@ -65,7 +66,8 @@ namespace Serilog.Sinks.Logz.Io
             string type,
             int batchPostingLimit,
             TimeSpan period,
-            bool useHttps = true)
+            bool useHttps = true,
+            bool boostProperties = false)
             : base(batchPostingLimit, period)
         {
             if (authToken == null)
@@ -74,6 +76,7 @@ namespace Serilog.Sinks.Logz.Io
             _client = client ?? throw new ArgumentNullException(nameof(client));
 
             _requestUri = useHttps ? string.Format(LogzIoHttpsUrl, authToken, type) : string.Format(LogzIoHttpUrl, authToken, type);
+            _boostProperties = boostProperties;
         }
 
         #region PeriodicBatchingSink Members
@@ -144,9 +147,11 @@ namespace Serilog.Sinks.Logz.Io
                     values["thread"] = GetPropertyInternalValue(threadId);
                 }
 
+                var propertyPrefix = _boostProperties ? "" : "properties.";
+
                 foreach (var property in loggingEvent.Properties)
                 {
-                    values[$"properties.{property.Key}"] = GetPropertyInternalValue(property.Value);
+                    values[$"{propertyPrefix}{property.Key}"] = GetPropertyInternalValue(property.Value);
                 }
             }
 

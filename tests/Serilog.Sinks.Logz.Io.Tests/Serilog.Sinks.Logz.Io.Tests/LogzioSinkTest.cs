@@ -20,7 +20,8 @@ namespace Serilog.Sinks.Logz.Io.Tests
             //Arrange
             var httpData = new List<HttpContent>();
             var log = new LoggerConfiguration()
-                .WriteTo.Sink(new LogzioSink(new GoodFakeHttpClient(httpData), "testAuthCode", "testTyoe", 100, TimeSpan.FromSeconds(1)))
+                .WriteTo.Sink(new LogzioSink(new GoodFakeHttpClient(httpData), "testAuthCode", "testTyoe", 100,
+                    TimeSpan.FromSeconds(1)))
                 .CreateLogger();
 
             //Act
@@ -35,7 +36,9 @@ namespace Serilog.Sinks.Logz.Io.Tests
             var data = await httpData.Single().ReadAsStringAsync();
             data.Should().NotBeNullOrWhiteSpace();
             var dataDic = JsonConvert.DeserializeObject<Dictionary<string, string>>(data);
-            dataDic.Should().ContainKey("@timestamp"); //LogzIo Requered a @timestamp (Iso DateTime) to indicate the time of the event.
+            dataDic.Should()
+                .ContainKey(
+                    "@timestamp"); //LogzIo Requered a @timestamp (Iso DateTime) to indicate the time of the event.
             dataDic.Should().ContainKey("message"); //LogzIo Requered a lowercase message string
             dataDic["@timestamp"].Should().NotBeNullOrWhiteSpace();
             dataDic["message"].Should().Be(logMsg);
@@ -60,11 +63,15 @@ namespace Serilog.Sinks.Logz.Io.Tests
                 .Enrich.WithProperty("PropArr1", new[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0})
                 .Enrich.WithProperty("PropArr2", new[] {"banana", "apple", "lemon"})
                 .Enrich.WithProperty("PropArr3", new object[] {1, "banana", 3.5, false})
-                .Enrich.WithProperty("PropNull1", null )
-                .Enrich.WithProperty("PropDic1", new Dictionary<string, int> {{"banana", 2}, {"apple", 5}, {"lemon", 76}} )
-                .Enrich.WithProperty("PropObj1", new { Name = "banana", Itens = new[] {1, 2, 3, 4}, Id = 99, active = true})
-                .Enrich.WithProperty("PropObj2", new { Name = "banana", Itens = new[] {1, 2, 3, 4}, Id = 99, active = true}, true)
-                .WriteTo.Sink(new LogzioSink(new GoodFakeHttpClient(httpData), "testAuthCode", "testTyoe", 100, TimeSpan.FromSeconds(1)))
+                .Enrich.WithProperty("PropNull1", null)
+                .Enrich.WithProperty("PropDic1",
+                    new Dictionary<string, int> {{"banana", 2}, {"apple", 5}, {"lemon", 76}})
+                .Enrich.WithProperty("PropObj1",
+                    new {Name = "banana", Itens = new[] {1, 2, 3, 4}, Id = 99, active = true})
+                .Enrich.WithProperty("PropObj2",
+                    new {Name = "banana", Itens = new[] {1, 2, 3, 4}, Id = 99, active = true}, true)
+                .WriteTo.Sink(new LogzioSink(new GoodFakeHttpClient(httpData), "testAuthCode", "testTyoe", 100,
+                    TimeSpan.FromSeconds(1)))
                 .CreateLogger();
 
             //Act
@@ -78,19 +85,21 @@ namespace Serilog.Sinks.Logz.Io.Tests
 
             var data = await httpData.Single().ReadAsStringAsync();
             data.Should().NotBeNullOrWhiteSpace();
-            
-            var dataDic = JsonConvert.DeserializeObject<Dictionary<string, Object>>(data);
-            dataDic.Should().ContainKey("@timestamp"); //LogzIo Requered a @timestamp (Iso DateTime) to indicate the time of the event.
+
+            var dataDic = JsonConvert.DeserializeObject<Dictionary<string, object>>(data);
+            dataDic.Should()
+                .ContainKey(
+                    "@timestamp"); //LogzIo Requered a @timestamp (Iso DateTime) to indicate the time of the event.
             dataDic.Should().ContainKey("message"); //LogzIo Requered a lowercase message string
             dataDic["@timestamp"].Should().NotBeNull();
             dataDic["message"].Should().Be(logMsg);
             dataDic["level"].Should().Be(LogEventLevel.Warning.ToString());
 
-            dataDic.Should().ContainKeys("properties.PropStr1", "properties.PropInt1", "properties.PropInt2", 
-                                         "properties.PropBool1", "properties.PropArr1", "properties.PropArr2", 
-                                         "properties.PropObj1", "properties.PropObj2", "properties.PropNull1", 
-                                         "properties.PropDic1", "properties.PropFloat1", "properties.PropFloat2", 
-                                         "properties.PropArr3", "properties.PropEnum1", "properties.PropEnum2");
+            dataDic.Should().ContainKeys("properties.PropStr1", "properties.PropInt1", "properties.PropInt2",
+                "properties.PropBool1", "properties.PropArr1", "properties.PropArr2",
+                "properties.PropObj1", "properties.PropObj2", "properties.PropNull1",
+                "properties.PropDic1", "properties.PropFloat1", "properties.PropFloat2",
+                "properties.PropArr3", "properties.PropEnum1", "properties.PropEnum2");
 
             dataDic["properties.PropStr1"].Should().Be("banana");
             dataDic["properties.PropInt1"].Should().Be(42);
@@ -112,7 +121,62 @@ namespace Serilog.Sinks.Logz.Io.Tests
             dataDinamic["properties.PropObj2"].Should().BeOfType<JObject>();
 
             //TODO More Test for other Props
+        }
 
+        [Fact]
+        public async Task GivenBoostedPropertiesIsDisabled_PropertiesHavePropertiesPrefix()
+        {
+            //Arrange
+            var httpData = new List<HttpContent>();
+            var log = new LoggerConfiguration()
+                .WriteTo.Sink(new LogzioSink(new GoodFakeHttpClient(httpData), "testAuthCode", "testTyoe", 100,
+                    TimeSpan.FromSeconds(1), boostProperties: false))
+                .Enrich.WithProperty("EnrichedProperty", "banana")
+                .CreateLogger();
+
+            //Act
+            var logMsg = "This a Information Log Trace {MessageTemplateProperty}";
+            log.Information(logMsg, "pear");
+            log.Dispose();
+
+            //Assert
+            httpData.Should().NotBeNullOrEmpty();
+            httpData.Should().HaveCount(1);
+
+            var data = await httpData.Single().ReadAsStringAsync();
+            data.Should().NotBeNullOrWhiteSpace();
+            var dataDic = JsonConvert.DeserializeObject<Dictionary<string, string>>(data);
+
+            dataDic["properties.EnrichedProperty"].Should().Be("banana");
+            dataDic["properties.MessageTemplateProperty"].Should().Be("pear");
+        }
+
+        [Fact]
+        public async Task GivenBoostPropertiesIsEnabled_PropertiesDoNotHavePropertiesPrefix()
+        {
+            //Arrange
+            var httpData = new List<HttpContent>();
+            var log = new LoggerConfiguration()
+                .WriteTo.Sink(new LogzioSink(new GoodFakeHttpClient(httpData), "testAuthCode", "testTyoe", 100,
+                    TimeSpan.FromSeconds(1), boostProperties: true))
+                .Enrich.WithProperty("EnrichedProperty", "banana")
+                .CreateLogger();
+
+            //Act
+            var logMsg = "This a Information Log Trace {MessageTemplateProperty}";
+            log.Information(logMsg, "pear");
+            log.Dispose();
+
+            //Assert
+            httpData.Should().NotBeNullOrEmpty();
+            httpData.Should().HaveCount(1);
+
+            var data = await httpData.Single().ReadAsStringAsync();
+            data.Should().NotBeNullOrWhiteSpace();
+            var dataDic = JsonConvert.DeserializeObject<Dictionary<string, string>>(data);
+
+            dataDic["EnrichedProperty"].Should().Be("banana");
+            dataDic["MessageTemplateProperty"].Should().Be("pear");
         }
     }
 }

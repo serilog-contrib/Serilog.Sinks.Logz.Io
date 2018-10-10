@@ -24,5 +24,10 @@ namespace Serilog.Sinks.Logz.Io
         /// Use https
         /// </summary>
         public bool UseHttps { get; set; } = true;
+
+        /// <summary>
+        /// Set to true to push all property names up to the event instead of using Properties.property_name
+        /// </summary>
+        public bool BoostProperties { get; set; } = false;
     }
 }
