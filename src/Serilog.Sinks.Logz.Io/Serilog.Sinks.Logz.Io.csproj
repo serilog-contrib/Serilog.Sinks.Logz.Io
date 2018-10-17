@@ -9,8 +9,10 @@
     <PackageProjectUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</RepositoryUrl>
     <PackageTags>Serilog LogzIo</PackageTags>
-    <Version>2.0.0</Version>
-    <PackageReleaseNotes>-Serilog Properties like int, bool, date now are being serialized as a actual types instead of strings</PackageReleaseNotes>
+    <Version>2.1.1</Version>
+    <PackageReleaseNotes>* BoostProperties flag - when does not add 'properties.' prefix to fields
+* Serilog Properties like int, bool, date now are being serialized as a actual types instead of strings
+</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>

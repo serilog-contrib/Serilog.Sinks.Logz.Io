@@ -45,6 +45,8 @@ namespace Serilog.Sinks.Logz.Io
         /// </summary>
         public static readonly TimeSpan DefaultPeriod = TimeSpan.FromSeconds(2);
 
+        public static string OverrideLogzIoUrl = "";
+
         /// <summary>
         /// 
         /// </summary>
@@ -60,6 +62,7 @@ namespace Serilog.Sinks.Logz.Io
         /// <param name="batchPostingLimit">The maximum number of events to post in a single batch.</param>
         /// <param name="period">The time to wait between checking for event batches.</param>
         /// <param name="useHttps">When true, uses HTTPS protocol.</param>
+        /// <param name="boostProperties">When true, does not add 'properties' prefix.</param>
         public LogzioSink(
             IHttpClient client,
             string authToken,
@@ -77,6 +80,9 @@ namespace Serilog.Sinks.Logz.Io
 
             _requestUri = useHttps ? string.Format(LogzIoHttpsUrl, authToken, type) : string.Format(LogzIoHttpUrl, authToken, type);
             _boostProperties = boostProperties;
+
+            if (!string.IsNullOrWhiteSpace(OverrideLogzIoUrl))
+                _requestUri = OverrideLogzIoUrl;
         }
 
         #region PeriodicBatchingSink Members
