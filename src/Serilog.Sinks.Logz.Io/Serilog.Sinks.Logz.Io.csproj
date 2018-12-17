@@ -9,11 +9,20 @@
     <PackageProjectUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</RepositoryUrl>
     <PackageTags>Serilog LogzIo</PackageTags>
-    <Version>2.1.3</Version>
-    <PackageReleaseNotes>* BoostProperties flag - when does not add 'properties.' prefix to fields
-* Serilog Properties like int, bool, date now are being serialized as a actual types instead of strings
+    <Version>2.1.2</Version>
+    <PackageReleaseNotes>* include LICENSE file to package
+* Added ability to specify data centre endpoint in config, defaulting to listener which is the US data centre
 </PackageReleaseNotes>
+    <AssemblyVersion>2.1.2.0</AssemblyVersion>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
+
+  <ItemGroup>
+      <None Include="..\..\LICENSE" Link="license\LICENSE">
+          <Pack>true</Pack>
+          <PackagePath></PackagePath>
+      </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
