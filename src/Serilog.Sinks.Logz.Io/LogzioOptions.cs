@@ -29,5 +29,12 @@ namespace Serilog.Sinks.Logz.Io
         /// Set to true to push all property names up to the event instead of using Properties.property_name
         /// </summary>
         public bool BoostProperties { get; set; } = false;
+
+        /// <summary>
+        /// The data center specific endpoint subdomain to use, select one of the following
+        /// 1) listener (default) = US
+        /// 2) listener-eu = UE
+        /// </summary>
+        public string DataCenterSubDomain { get; set; } = "listener";
     }
 }

@@ -50,8 +50,8 @@ namespace Serilog.Sinks.Logz.Io
         /// <summary>
         /// 
         /// </summary>
-        private const string LogzIoHttpUrl = "http://listener.logz.io:8070/?token={0}&type={1}";
-        private const string LogzIoHttpsUrl = "https://listener.logz.io:8071/?token={0}&type={1}";
+        private const string LogzIoHttpUrl = "http://{2}.logz.io:8070/?token={0}&type={1}";
+        private const string LogzIoHttpsUrl = "https://{2}.logz.io:8071/?token={0}&type={1}";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LogzioSink"/> class. 
@@ -63,6 +63,7 @@ namespace Serilog.Sinks.Logz.Io
         /// <param name="period">The time to wait between checking for event batches.</param>
         /// <param name="useHttps">When true, uses HTTPS protocol.</param>
         /// <param name="boostProperties">When true, does not add 'properties' prefix.</param>
+        /// <param name="dataCenterSubdomain">The logz.io datacenter specific sub-domain to send the logs to. options: "listener" (default, US), "listener-eu" (EU)</param>
         public LogzioSink(
             IHttpClient client,
             string authToken,
@@ -70,7 +71,8 @@ namespace Serilog.Sinks.Logz.Io
             int batchPostingLimit,
             TimeSpan period,
             bool useHttps = true,
-            bool boostProperties = false)
+            bool boostProperties = false,
+            string dataCenterSubdomain = "listener")
             : base(batchPostingLimit, period)
         {
             if (authToken == null)
@@ -78,7 +80,7 @@ namespace Serilog.Sinks.Logz.Io
 
             _client = client ?? throw new ArgumentNullException(nameof(client));
 
-            _requestUri = useHttps ? string.Format(LogzIoHttpsUrl, authToken, type) : string.Format(LogzIoHttpUrl, authToken, type);
+            _requestUri = useHttps ? string.Format(LogzIoHttpsUrl, authToken, type, dataCenterSubdomain) : string.Format(LogzIoHttpUrl, authToken, type, dataCenterSubdomain);
             _boostProperties = boostProperties;
 
             if (!string.IsNullOrWhiteSpace(OverrideLogzIoUrl))
