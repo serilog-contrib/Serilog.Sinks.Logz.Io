@@ -34,17 +34,20 @@ namespace Serilog
         /// <param name="type">Your log type - it helps classify the logs you send.</param>
         /// <param name="useHttps">Specifies to use https (default is true)</param>
         /// <returns>Logger configuration, allowing configuration to continue.</returns>
+        /// <param name="dataCenterSubdomain">The logz.io datacenter specific sub-domain to send the logs to. options: "listener" (default, US), "listener-eu" (EU)</param>
         public static LoggerConfiguration LogzIo(
             this LoggerSinkConfiguration sinkConfiguration,
             string authToken,
             string type,
             bool useHttps = true,
-            bool boostProperties = false)
+            bool boostProperties = false,
+            string dataCenterSubdomain = "listener")
         {
             return LogzIo(sinkConfiguration, authToken, type, new LogzioOptions
             {
                 UseHttps = useHttps,
-                BoostProperties = boostProperties
+                BoostProperties = boostProperties,
+                DataCenterSubDomain = dataCenterSubdomain
             });
         }
 
@@ -73,7 +76,8 @@ namespace Serilog
                 options?.BatchPostingLimit ?? LogzioSink.DefaultBatchPostingLimit,
                 options?.Period ?? LogzioSink.DefaultPeriod,
                 options?.UseHttps ?? true,
-                options?.BoostProperties ?? false);
+                options?.BoostProperties ?? false,
+                options?.DataCenterSubDomain ?? "listener");
 
             return sinkConfiguration.Sink(sink, options?.RestrictedToMinimumLevel ?? LogEventLevel.Verbose);
         }
