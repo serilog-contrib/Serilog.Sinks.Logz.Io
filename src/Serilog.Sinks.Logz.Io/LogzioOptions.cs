@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Serilog.Events;
 
 namespace Serilog.Sinks.Logz.Io
@@ -31,10 +32,19 @@ namespace Serilog.Sinks.Logz.Io
         public bool BoostProperties { get; set; } = false;
 
         /// <summary>
-        /// The data center specific endpoint subdomain to use, select one of the following
+        /// The data center specific endpoint sub domain to use, select one of the following
         /// 1) listener (default) = US
         /// 2) listener-eu = UE
         /// </summary>
         public string DataCenterSubDomain { get; set; } = "listener";
+
+        /// <summary>
+        /// Specifies how to rename properties before sending to target
+        /// </summary>
+        public Dictionary<string, string> PropertyTransformationMap { get; set; } = new Dictionary<string, string>
+        {
+            {"SourceContext", "logger"},
+            {"ThreadId", "thread"},
+        };
     }
 }

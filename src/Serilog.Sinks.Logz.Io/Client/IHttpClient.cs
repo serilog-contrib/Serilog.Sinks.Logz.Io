@@ -29,11 +29,5 @@ namespace Serilog.Sinks.Logz.Io.Client
         /// <param name="content">The HTTP request content sent to the server.</param>
         /// <returns>The task object representing the asynchronous operation.</returns>
         Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content);
-
-        /// <summary>
-        /// Releases the unmanaged resources and disposes of the managed resources used by the
-        /// <see cref="IHttpClient"/>.
-        /// </summary>
-        void Dispose();
     }
 }

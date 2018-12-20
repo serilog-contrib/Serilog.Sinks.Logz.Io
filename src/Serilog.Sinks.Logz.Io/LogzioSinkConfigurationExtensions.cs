@@ -33,21 +33,22 @@ namespace Serilog
         /// <param name="authToken">The token for your logzio account.</param>
         /// <param name="type">Your log type - it helps classify the logs you send.</param>
         /// <param name="useHttps">Specifies to use https (default is true)</param>
+        /// <param name="boostProperties">When true, does not add 'properties' prefix.</param>
+        /// <param name="dataCenterSubDomain">The logz.io datacenter specific sub-domain to send the logs to. options: "listener" (default, US), "listener-eu" (EU)</param>
         /// <returns>Logger configuration, allowing configuration to continue.</returns>
-        /// <param name="dataCenterSubdomain">The logz.io datacenter specific sub-domain to send the logs to. options: "listener" (default, US), "listener-eu" (EU)</param>
         public static LoggerConfiguration LogzIo(
             this LoggerSinkConfiguration sinkConfiguration,
             string authToken,
             string type,
             bool useHttps = true,
             bool boostProperties = false,
-            string dataCenterSubdomain = "listener")
+            string dataCenterSubDomain = "listener")
         {
             return LogzIo(sinkConfiguration, authToken, type, new LogzioOptions
             {
                 UseHttps = useHttps,
                 BoostProperties = boostProperties,
-                DataCenterSubDomain = dataCenterSubdomain
+                DataCenterSubDomain = dataCenterSubDomain
             });
         }
 
@@ -59,25 +60,13 @@ namespace Serilog
         /// <param name="type">Your log type - it helps classify the logs you send.</param>
         /// <param name="options">Logzio configuration options</param>
         /// <returns>Logger configuration, allowing configuration to continue.</returns>
-        public static LoggerConfiguration LogzIo(
-            this LoggerSinkConfiguration sinkConfiguration,
-            string authToken,
-            string type,
-            LogzioOptions options = null)
+        public static LoggerConfiguration LogzIo(this LoggerSinkConfiguration sinkConfiguration, string authToken, string type, LogzioOptions options = null)
         {
             if (sinkConfiguration == null)
                 throw new ArgumentNullException(nameof(sinkConfiguration));
 
             var client = new HttpClientWrapper();
-            var sink = new LogzioSink(
-                client,
-                authToken,
-                type,
-                options?.BatchPostingLimit ?? LogzioSink.DefaultBatchPostingLimit,
-                options?.Period ?? LogzioSink.DefaultPeriod,
-                options?.UseHttps ?? true,
-                options?.BoostProperties ?? false,
-                options?.DataCenterSubDomain ?? "listener");
+            var sink = new LogzioSink(client, authToken, type, options ?? new LogzioOptions());
 
             return sinkConfiguration.Sink(sink, options?.RestrictedToMinimumLevel ?? LogEventLevel.Verbose);
         }

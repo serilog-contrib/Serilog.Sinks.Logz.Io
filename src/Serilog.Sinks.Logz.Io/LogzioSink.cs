@@ -31,10 +31,6 @@ namespace Serilog.Sinks.Logz.Io
     /// </summary>
     public sealed class LogzioSink : PeriodicBatchingSink
     {
-        private IHttpClient _client;
-        private readonly string _requestUri;
-        private readonly bool _boostProperties;
-
         /// <summary>
         /// The default batch posting limit.
         /// </summary>
@@ -45,6 +41,9 @@ namespace Serilog.Sinks.Logz.Io
         /// </summary>
         public static readonly TimeSpan DefaultPeriod = TimeSpan.FromSeconds(2);
 
+        /// <summary>
+        /// When set uses specified Url to send events instead of logz.io
+        /// </summary>
         public static string OverrideLogzIoUrl = "";
 
         /// <summary>
@@ -52,6 +51,10 @@ namespace Serilog.Sinks.Logz.Io
         /// </summary>
         private const string LogzIoHttpUrl = "http://{2}.logz.io:8070/?token={0}&type={1}";
         private const string LogzIoHttpsUrl = "https://{2}.logz.io:8071/?token={0}&type={1}";
+
+        private readonly IHttpClient _client;
+        private readonly LogzioOptions _options;
+        private readonly string _requestUrl;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LogzioSink"/> class. 
@@ -63,28 +66,46 @@ namespace Serilog.Sinks.Logz.Io
         /// <param name="period">The time to wait between checking for event batches.</param>
         /// <param name="useHttps">When true, uses HTTPS protocol.</param>
         /// <param name="boostProperties">When true, does not add 'properties' prefix.</param>
-        /// <param name="dataCenterSubdomain">The logz.io datacenter specific sub-domain to send the logs to. options: "listener" (default, US), "listener-eu" (EU)</param>
-        public LogzioSink(
-            IHttpClient client,
-            string authToken,
-            string type,
-            int batchPostingLimit,
-            TimeSpan period,
-            bool useHttps = true,
-            bool boostProperties = false,
-            string dataCenterSubdomain = "listener")
-            : base(batchPostingLimit, period)
+        /// <param name="dataCenterSubDomain">The logz.io datacenter specific sub-domain to send the logs to. options: "listener" (default, US), "listener-eu" (EU)</param>
+        public LogzioSink(IHttpClient client, string authToken, string type, int batchPostingLimit, TimeSpan period, bool useHttps = true, bool boostProperties = false, string dataCenterSubDomain = "listener")
+            : this(client, authToken, type, new LogzioOptions
+            {
+                BatchPostingLimit = batchPostingLimit,
+                Period = period,
+                UseHttps = useHttps,
+                BoostProperties = boostProperties,
+                DataCenterSubDomain = dataCenterSubDomain
+            })
         {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="LogzioSink"/> class. 
+        /// </summary>
+        /// <param name="client">The client responsible for sending HTTP POST requests.</param>
+        /// <param name="authToken">The token for logzio.</param>
+        /// <param name="type">Your log type - it helps classify the logs you send.</param>
+        /// <param name="options">LogzIo configuration options</param>
+        public LogzioSink(IHttpClient client, string authToken, string type, LogzioOptions options)
+            : base(options?.BatchPostingLimit ?? DefaultBatchPostingLimit, options?.Period ?? DefaultPeriod)
+        {
+            _client = client ?? throw new ArgumentNullException(nameof(client));
+
             if (authToken == null)
                 throw new ArgumentNullException(nameof(authToken));
 
-            _client = client ?? throw new ArgumentNullException(nameof(client));
-
-            _requestUri = useHttps ? string.Format(LogzIoHttpsUrl, authToken, type, dataCenterSubdomain) : string.Format(LogzIoHttpUrl, authToken, type, dataCenterSubdomain);
-            _boostProperties = boostProperties;
+            _options = options ?? throw new ArgumentNullException(nameof(options));
 
             if (!string.IsNullOrWhiteSpace(OverrideLogzIoUrl))
-                _requestUri = OverrideLogzIoUrl;
+            {
+                _requestUrl = OverrideLogzIoUrl;
+            }
+            else
+            {
+                _requestUrl = _options.UseHttps
+                    ? string.Format(LogzIoHttpsUrl, authToken, type, _options.DataCenterSubDomain)
+                    : string.Format(LogzIoHttpUrl, authToken, type, _options.DataCenterSubDomain);
+            }
         }
 
         #region PeriodicBatchingSink Members
@@ -99,28 +120,11 @@ namespace Serilog.Sinks.Logz.Io
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
 
             var result = await _client
-                .PostAsync(_requestUri, content)
+                .PostAsync(_requestUrl, content)
                 .ConfigureAwait(false);
 
             if (!result.IsSuccessStatusCode)
-                throw new LoggingFailedException($"Received failed result {result.StatusCode} when posting events to {_requestUri}");
-        }
-
-        /// <summary>
-        /// Free resources held by the sink.
-        /// </summary>
-        /// <param name="disposing">
-        /// If true, called because the object is being disposed; if false, the object is being
-        /// disposed from the finalizer.
-        /// </param>
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-
-            if (!disposing || _client == null)  return;
-
-            _client.Dispose();
-            _client = null;
+                throw new LoggingFailedException($"Received failed result {result.StatusCode} when posting events to {_requestUrl}");
         }
 
         #endregion
@@ -146,20 +150,20 @@ namespace Serilog.Sinks.Logz.Io
 
             if (loggingEvent.Properties != null)
             {
-                if (loggingEvent.Properties.TryGetValue("SourceContext", out var sourceContext))
-                {
-                    values["logger"] = sourceContext.ToString();
-                }
-                if (loggingEvent.Properties.TryGetValue("ThreadId", out var threadId))
-                {
-                    values["thread"] = GetPropertyInternalValue(threadId);
-                }
-
-                var propertyPrefix = _boostProperties ? "" : "properties.";
+                var propertyPrefix = _options.BoostProperties ? "" : "properties.";
 
                 foreach (var property in loggingEvent.Properties)
                 {
-                    values[$"{propertyPrefix}{property.Key}"] = GetPropertyInternalValue(property.Value);
+                    var propertyName = $"{propertyPrefix}{property.Key}";
+                    if (_options.PropertyTransformationMap != null && 
+                        _options.PropertyTransformationMap.TryGetValue(property.Key, out var mappedPropertyName) &&
+                        !string.IsNullOrWhiteSpace(mappedPropertyName))
+                    {
+                        propertyName = mappedPropertyName;
+                    }
+
+                    var propertyInternalValue = GetPropertyInternalValue(property.Value);
+                    values[propertyName] = propertyInternalValue;
                 }
             }
 
