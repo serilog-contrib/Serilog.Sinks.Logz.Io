@@ -9,8 +9,8 @@
     <PackageProjectUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</RepositoryUrl>
     <PackageTags>Serilog LogzIo</PackageTags>
-    <Version>2.2.0</Version>
-    <PackageReleaseNotes>* added specified property flattening, by default 'SourceContext' is added as 'logger' and 'ThreadId' as 'thread'
+    <Version>2.2.1</Version>
+    <PackageReleaseNotes>* added possibility to specify 'restrictedToMinimumLevel' property (default: Verbose)
 </PackageReleaseNotes>
     <AssemblyVersion>2.2.0.0</AssemblyVersion>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>

@@ -35,6 +35,7 @@ namespace Serilog
         /// <param name="useHttps">Specifies to use https (default is true)</param>
         /// <param name="boostProperties">When true, does not add 'properties' prefix.</param>
         /// <param name="dataCenterSubDomain">The logz.io datacenter specific sub-domain to send the logs to. options: "listener" (default, US), "listener-eu" (EU)</param>
+        /// <param name="restrictedToMinimumLevel">Specifies minimal level for log events</param>
         /// <returns>Logger configuration, allowing configuration to continue.</returns>
         public static LoggerConfiguration LogzIo(
             this LoggerSinkConfiguration sinkConfiguration,
@@ -42,13 +43,15 @@ namespace Serilog
             string type,
             bool useHttps = true,
             bool boostProperties = false,
-            string dataCenterSubDomain = "listener")
+            string dataCenterSubDomain = "listener",
+            LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose)
         {
             return LogzIo(sinkConfiguration, authToken, type, new LogzioOptions
             {
                 UseHttps = useHttps,
                 BoostProperties = boostProperties,
-                DataCenterSubDomain = dataCenterSubDomain
+                DataCenterSubDomain = dataCenterSubDomain,
+                RestrictedToMinimumLevel = restrictedToMinimumLevel
             });
         }
 
@@ -67,8 +70,9 @@ namespace Serilog
 
             var client = new HttpClientWrapper();
             var sink = new LogzioSink(client, authToken, type, options ?? new LogzioOptions());
+            var restrictedToMinimumLevel = options?.RestrictedToMinimumLevel ?? LogEventLevel.Verbose;
 
-            return sinkConfiguration.Sink(sink, options?.RestrictedToMinimumLevel ?? LogEventLevel.Verbose);
+            return sinkConfiguration.Sink(sink, restrictedToMinimumLevel);
         }
     }
 }
