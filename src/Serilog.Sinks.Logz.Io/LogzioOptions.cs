@@ -32,6 +32,21 @@ namespace Serilog.Sinks.Logz.Io
         public bool BoostProperties { get; set; } = false;
 
         /// <summary>
+        /// Set to true to push lowercased log level
+        /// </summary>
+        public bool LowercaseLevel { get; set; } = false;
+        
+        /// <summary>
+        /// Set environment name, default is empty and not sent to server
+        /// </summary>
+        public string Environment { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Set microservice name, default is empty and not sent to server
+        /// </summary>
+        public string ServiceName { get; set; } = string.Empty;
+
+        /// <summary>
         /// The data center specific endpoint sub domain to use, select one of the following
         /// 1) listener (default) = US
         /// 2) listener-eu = UE

@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2036
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30002.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serilog.Sinks.Logz.Io", "src\Serilog.Sinks.Logz.Io\Serilog.Sinks.Logz.Io.csproj", "{98B4B46C-E1C2-4837-A627-CF0C87519B7C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serilog.Sinks.Logz.Io.Tests", "tests\Serilog.Sinks.Logz.Io.Tests\Serilog.Sinks.Logz.Io.Tests\Serilog.Sinks.Logz.Io.Tests.csproj", "{D55229A9-D4A7-4838-88AD-53190EEDE5AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Sinks.Logz.Io.Console", "tests\Serilog.Sinks.Logz.Io.Console\Serilog.Sinks.Logz.Io.Console.csproj", "{BF7483E8-43BD-4549-B53E-2A6AB46FCE1F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serilog.Sinks.Logz.Io.Console", "tests\Serilog.Sinks.Logz.Io.Console\Serilog.Sinks.Logz.Io.Console.csproj", "{BF7483E8-43BD-4549-B53E-2A6AB46FCE1F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Sinks.Logz.Io.AspNetCoreApi", "tests\Serilog.Sinks.Logz.Io.AspNetCoreApi\Serilog.Sinks.Logz.Io.AspNetCoreApi.csproj", "{65A0BE3C-3604-429A-9C3A-28B1E6A3B5E9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Serilog.Sinks.Logz.Io.AspNetCoreApi", "tests\Serilog.Sinks.Logz.Io.AspNetCoreApi\Serilog.Sinks.Logz.Io.AspNetCoreApi.csproj", "{65A0BE3C-3604-429A-9C3A-28B1E6A3B5E9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,8 +17,8 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{98B4B46C-E1C2-4837-A627-CF0C87519B7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{98B4B46C-E1C2-4837-A627-CF0C87519B7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98B4B46C-E1C2-4837-A627-CF0C87519B7C}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{98B4B46C-E1C2-4837-A627-CF0C87519B7C}.Debug|Any CPU.Build.0 = Release|Any CPU
 		{98B4B46C-E1C2-4837-A627-CF0C87519B7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98B4B46C-E1C2-4837-A627-CF0C87519B7C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D55229A9-D4A7-4838-88AD-53190EEDE5AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU

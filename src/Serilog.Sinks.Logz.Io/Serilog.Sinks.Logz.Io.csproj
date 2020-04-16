@@ -9,10 +9,13 @@
     <PackageProjectUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</RepositoryUrl>
     <PackageTags>Serilog LogzIo</PackageTags>
-    <Version>2.2.1</Version>
-    <PackageReleaseNotes>* added possibility to specify 'restrictedToMinimumLevel' property (default: Verbose)
+    <Version>2.2.2</Version>
+    <PackageReleaseNotes>* possibiltity to lowercase log level value
+* add environment field
+* add service name field
 </PackageReleaseNotes>
     <AssemblyVersion>2.2.0.0</AssemblyVersion>
+    <FileVersion>2.2.0.0</FileVersion>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
@@ -24,11 +27,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.1.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.3.0" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='net45'">
-    <PackageReference Include="System.Net.Http" Version="4.3.3" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
 </Project>

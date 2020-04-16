@@ -140,13 +140,27 @@ namespace Serilog.Sinks.Logz.Io
 
         private string FormatLogEvent(LogEvent loggingEvent)
         {
+            var level = loggingEvent.Level.ToString();
+            if (_options.LowercaseLevel)
+                level = level.ToLower();
+
             var values = new Dictionary<string, object>
             {
                 {"@timestamp", loggingEvent.Timestamp.ToString("O")},
-                {"level", loggingEvent.Level.ToString()},
+                {"level", level},
                 {"message", loggingEvent.RenderMessage()},
                 {"exception", loggingEvent.Exception}
             };
+
+            if (!string.IsNullOrWhiteSpace(_options.ServiceName))
+            {
+                values.Add("service", _options.ServiceName);
+            }
+
+            if (!string.IsNullOrWhiteSpace(_options.Environment))
+            {
+                values.Add("environment", _options.Environment);
+            }
 
             if (loggingEvent.Properties != null)
             {
