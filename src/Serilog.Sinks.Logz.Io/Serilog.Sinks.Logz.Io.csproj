@@ -9,7 +9,7 @@
     <PackageProjectUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</RepositoryUrl>
     <PackageTags>Serilog LogzIo</PackageTags>
-    <Version>2.2.2</Version>
+    <Version>2.2.3</Version>
     <PackageReleaseNotes>* possibiltity to lowercase log level value
 * add environment field
 * add service name field
