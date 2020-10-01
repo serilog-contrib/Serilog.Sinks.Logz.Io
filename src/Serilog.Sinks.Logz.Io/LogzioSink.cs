@@ -56,6 +56,11 @@ namespace Serilog.Sinks.Logz.Io
         private readonly LogzioOptions _options;
         private readonly string _requestUrl;
 
+        private readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        };
+
         /// <summary>
         /// Initializes a new instance of the <see cref="LogzioSink"/> class. 
         /// </summary>
@@ -169,7 +174,7 @@ namespace Serilog.Sinks.Logz.Io
                 foreach (var property in loggingEvent.Properties)
                 {
                     var propertyName = $"{propertyPrefix}{property.Key}";
-                    if (_options.PropertyTransformationMap != null && 
+                    if (_options.PropertyTransformationMap != null &&
                         _options.PropertyTransformationMap.TryGetValue(property.Key, out var mappedPropertyName) &&
                         !string.IsNullOrWhiteSpace(mappedPropertyName))
                     {
@@ -181,7 +186,7 @@ namespace Serilog.Sinks.Logz.Io
                 }
             }
 
-            return JsonConvert.SerializeObject(values, Newtonsoft.Json.Formatting.None);
+            return JsonConvert.SerializeObject(values, Newtonsoft.Json.Formatting.None, _jsonSerializerSettings);
         }
 
         private static object GetPropertyInternalValue(LogEventPropertyValue propertyValue)
@@ -190,7 +195,7 @@ namespace Serilog.Sinks.Logz.Io
             {
                 case ScalarValue sv: return GetInternalValue(sv.Value);
                 case SequenceValue sv: return sv.Elements.Select(GetPropertyInternalValue).ToArray();
-                case DictionaryValue dv: return dv.Elements.Select( kv => new { Key = kv.Key.Value,  Value = GetPropertyInternalValue(kv.Value) }).ToDictionary(i => i.Key, i => i.Value);
+                case DictionaryValue dv: return dv.Elements.Select(kv => new { Key = kv.Key.Value, Value = GetPropertyInternalValue(kv.Value) }).ToDictionary(i => i.Key, i => i.Value);
                 case StructureValue sv: return sv.Properties.Select(kv => new { Key = kv.Name, Value = GetPropertyInternalValue(kv.Value) }).ToDictionary(i => i.Key, i => i.Value);
             }
             return propertyValue.ToString();
