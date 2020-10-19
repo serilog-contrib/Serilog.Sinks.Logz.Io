@@ -72,14 +72,16 @@ namespace Serilog.Sinks.Logz.Io
         /// <param name="useHttps">When true, uses HTTPS protocol.</param>
         /// <param name="boostProperties">When true, does not add 'properties' prefix.</param>
         /// <param name="dataCenterSubDomain">The logz.io datacenter specific sub-domain to send the logs to. options: "listener" (default, US), "listener-eu" (EU)</param>
-        public LogzioSink(IHttpClient client, string authToken, string type, int batchPostingLimit, TimeSpan period, bool useHttps = true, bool boostProperties = false, string dataCenterSubDomain = "listener")
+        /// <param name="includeMessageTemplate">When true the message template is included in the logs</param>
+        public LogzioSink(IHttpClient client, string authToken, string type, int batchPostingLimit, TimeSpan period, bool useHttps = true, bool boostProperties = false, string dataCenterSubDomain = "listener", bool includeMessageTemplate = false)
             : this(client, authToken, type, new LogzioOptions
             {
                 BatchPostingLimit = batchPostingLimit,
                 Period = period,
                 UseHttps = useHttps,
                 BoostProperties = boostProperties,
-                DataCenterSubDomain = dataCenterSubDomain
+                DataCenterSubDomain = dataCenterSubDomain,
+                IncludeMessageTemplate = includeMessageTemplate
             })
         {
         }
