@@ -157,6 +157,11 @@ namespace Serilog.Sinks.Logz.Io
                 {"exception", loggingEvent.Exception}
             };
 
+            if (_options.IncludeMessageTemplate)
+            {
+                values.Add("messageTemplate", loggingEvent.MessageTemplate.Text);
+            }
+
             if (!string.IsNullOrWhiteSpace(_options.ServiceName))
             {
                 values.Add("service", _options.ServiceName);
