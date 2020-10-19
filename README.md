@@ -44,6 +44,36 @@ ILogger log = new LoggerConfiguration()
     })
   .CreateLogger();
 ```
+
+Alternatively configuration can be done within your `appsettings.json` file:
+
+```json
+{
+  "Serilog": {
+    "MinimumLevel": {
+      "Default": "Verbose"
+    },
+    "WriteTo": [
+      {
+        "Name": "LogzIo",
+        "Args": {
+          "authToken": "<logzio token>",
+          "type": "<log type>",
+          "dataCenterSubDomain": "listener",
+          "useHttps": true,
+          "batchPostingLimit": 5000,
+          "period": "00:00:02",
+          "restrictedToMinimumLevel": "Debug",
+          "lowercaseLevel": false,
+          "environment": "",
+          "serviceName": ""
+        }
+      }
+    ]
+  }
+}
+```
+
 ## Install via NuGet
 
 If you want to include the HTTP sink in your project, you can [install it directly from NuGet](https://www.nuget.org/packages/Serilog.Sinks.Logz.Io/).
