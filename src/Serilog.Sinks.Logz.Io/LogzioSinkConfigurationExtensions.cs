@@ -36,6 +36,7 @@ namespace Serilog
         /// <param name="boostProperties">When true, does not add 'properties' prefix.</param>
         /// <param name="dataCenterSubDomain">The logz.io datacenter specific sub-domain to send the logs to. options: "listener" (default, US), "listener-eu" (EU)</param>
         /// <param name="restrictedToMinimumLevel">Specifies minimal level for log events</param>
+        /// <param name="includeMessageTemplate">When true the message template is included in the logs</param>
         /// <returns>Logger configuration, allowing configuration to continue.</returns>
         public static LoggerConfiguration LogzIo(
             this LoggerSinkConfiguration sinkConfiguration,
@@ -44,14 +45,16 @@ namespace Serilog
             bool useHttps = true,
             bool boostProperties = false,
             string dataCenterSubDomain = "listener",
-            LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose)
+            LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose,
+            bool includeMessageTemplate = false)
         {
             return LogzIo(sinkConfiguration, authToken, type, new LogzioOptions
             {
                 UseHttps = useHttps,
                 BoostProperties = boostProperties,
                 DataCenterSubDomain = dataCenterSubDomain,
-                RestrictedToMinimumLevel = restrictedToMinimumLevel
+                RestrictedToMinimumLevel = restrictedToMinimumLevel,
+                IncludeMessageTemplate = includeMessageTemplate
             });
         }
 

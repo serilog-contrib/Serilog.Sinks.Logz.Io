@@ -54,6 +54,11 @@ namespace Serilog.Sinks.Logz.Io
         public string DataCenterSubDomain { get; set; } = "listener";
 
         /// <summary>
+        /// Set to true to include message template
+        /// </summary>
+        public bool IncludeMessageTemplate { get; set; } = false;
+
+        /// <summary>
         /// Specifies how to rename properties before sending to target
         /// </summary>
         public Dictionary<string, string> PropertyTransformationMap { get; set; } = new Dictionary<string, string>
