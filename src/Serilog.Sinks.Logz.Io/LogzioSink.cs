@@ -31,6 +31,9 @@ namespace Serilog.Sinks.Logz.Io
     /// </summary>
     public sealed class LogzioSink : PeriodicBatchingSink
     {
+        private readonly LogzIoUrl LogzIoHttpUrl = new LogzIoUrl("http://{2}.logz.io:{3}/?token={0}&type={1}", 8070);
+        private readonly LogzIoUrl LogzIoHttpsUrl = new LogzIoUrl("https://{2}.logz.io:{3}/?token={0}&type={1}", 8071);
+
         /// <summary>
         /// The default batch posting limit.
         /// </summary>
@@ -45,13 +48,7 @@ namespace Serilog.Sinks.Logz.Io
         /// When set uses specified Url to send events instead of logz.io
         /// </summary>
         public static string OverrideLogzIoUrl = "";
-
-        /// <summary>
-        /// 
-        /// </summary>
-        private const string LogzIoHttpUrl = "http://{2}.logz.io:8070/?token={0}&type={1}";
-        private const string LogzIoHttpsUrl = "https://{2}.logz.io:8071/?token={0}&type={1}";
-
+        
         private readonly IHttpClient _client;
         private readonly LogzioOptions _options;
         private readonly string _requestUrl;
@@ -73,7 +70,8 @@ namespace Serilog.Sinks.Logz.Io
         /// <param name="boostProperties">When true, does not add 'properties' prefix.</param>
         /// <param name="dataCenterSubDomain">The logz.io datacenter specific sub-domain to send the logs to. options: "listener" (default, US), "listener-eu" (EU)</param>
         /// <param name="includeMessageTemplate">When true the message template is included in the logs</param>
-        public LogzioSink(IHttpClient client, string authToken, string type, int batchPostingLimit, TimeSpan period, bool useHttps = true, bool boostProperties = false, string dataCenterSubDomain = "listener", bool includeMessageTemplate = false)
+        /// <param name="port">When specified overrides default port</param>
+        public LogzioSink(IHttpClient client, string authToken, string type, int batchPostingLimit, TimeSpan period, bool useHttps = true, bool boostProperties = false, string dataCenterSubDomain = "listener", bool includeMessageTemplate = false, int? port = null)
             : this(client, authToken, type, new LogzioOptions
             {
                 BatchPostingLimit = batchPostingLimit,
@@ -81,7 +79,8 @@ namespace Serilog.Sinks.Logz.Io
                 UseHttps = useHttps,
                 BoostProperties = boostProperties,
                 DataCenterSubDomain = dataCenterSubDomain,
-                IncludeMessageTemplate = includeMessageTemplate
+                IncludeMessageTemplate = includeMessageTemplate,
+                Port = port
             })
         {
         }
@@ -110,8 +109,8 @@ namespace Serilog.Sinks.Logz.Io
             else
             {
                 _requestUrl = _options.UseHttps
-                    ? string.Format(LogzIoHttpsUrl, authToken, type, _options.DataCenterSubDomain)
-                    : string.Format(LogzIoHttpUrl, authToken, type, _options.DataCenterSubDomain);
+                    ? LogzIoHttpsUrl.Format(authToken, type, _options.DataCenterSubDomain, _options.Port)
+                    : LogzIoHttpUrl.Format(authToken, type, _options.DataCenterSubDomain, _options.Port);
             }
         }
 

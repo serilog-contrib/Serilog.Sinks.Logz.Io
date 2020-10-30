@@ -42,6 +42,7 @@ namespace Serilog
         /// <param name="environment">The environment name, default is empty and not sent to server</param>
         /// <param name="serviceName">The microservice name, default is empty and not sent to server</param>
         /// <param name="includeMessageTemplate">When true the message template is included in the logs</param>
+        /// <param name="port">When specified overrides default port</param>
         /// <returns>Logger configuration, allowing configuration to continue.</returns>
         public static LoggerConfiguration LogzIo(
             this LoggerSinkConfiguration sinkConfiguration,
@@ -56,7 +57,8 @@ namespace Serilog
             bool lowercaseLevel = false,
             string environment = null,
             string serviceName = null,
-            bool includeMessageTemplate = false)
+            bool includeMessageTemplate = false,
+            int? port = null)
         {
             return LogzIo(sinkConfiguration, authToken, type, new LogzioOptions
             {

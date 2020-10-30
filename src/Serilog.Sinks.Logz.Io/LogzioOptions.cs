@@ -54,6 +54,11 @@ namespace Serilog.Sinks.Logz.Io
         public string DataCenterSubDomain { get; set; } = "listener";
 
         /// <summary>
+        /// Adds possibility to override port
+        /// </summary>
+        public int? Port { get; set; } = null;
+
+        /// <summary>
         /// Set to true to include message template
         /// </summary>
         public bool IncludeMessageTemplate { get; set; } = false;
