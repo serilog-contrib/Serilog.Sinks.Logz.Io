@@ -178,5 +178,31 @@ namespace Serilog.Sinks.Logz.Io.Tests
             dataDic["EnrichedProperty"].Should().Be("banana");
             dataDic["MessageTemplateProperty"].Should().Be("pear");
         }
+
+        [Fact]
+        public async Task GivenIncludeMessageTemplateIsEnabled_MessageTemplateShouldBeIncluded()
+        {
+            //Arrange
+            var httpData = new List<HttpContent>();
+            var log = new LoggerConfiguration()
+                .WriteTo.Sink(new LogzioSink(new GoodFakeHttpClient(httpData), "testAuthCode", "testTyoe", 100,
+                    TimeSpan.FromSeconds(1), includeMessageTemplate: true))
+                .CreateLogger();
+
+            //Act
+            var logMsg = "This a Information Log Trace {MessageTemplateProperty}";
+            log.Information(logMsg, "pear");
+            log.Dispose();
+
+            //Assert
+            httpData.Should().NotBeNullOrEmpty();
+            httpData.Should().HaveCount(1);
+
+            var data = await httpData.Single().ReadAsStringAsync();
+            data.Should().NotBeNullOrWhiteSpace();
+            var dataDic = JsonConvert.DeserializeObject<Dictionary<string, string>>(data);
+
+            dataDic["messageTemplate"].Should().Be(logMsg);
+        }
     }
 }

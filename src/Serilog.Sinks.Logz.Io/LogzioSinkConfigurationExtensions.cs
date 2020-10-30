@@ -41,6 +41,7 @@ namespace Serilog
         /// <param name="lowercaseLevel">Set to true to push log level as lowercase</param>
         /// <param name="environment">The environment name, default is empty and not sent to server</param>
         /// <param name="serviceName">The microservice name, default is empty and not sent to server</param>
+        /// <param name="includeMessageTemplate">When true the message template is included in the logs</param>
         /// <returns>Logger configuration, allowing configuration to continue.</returns>
         public static LoggerConfiguration LogzIo(
             this LoggerSinkConfiguration sinkConfiguration,
@@ -54,7 +55,8 @@ namespace Serilog
             TimeSpan? period = null,
             bool lowercaseLevel = false,
             string environment = null,
-            string serviceName = null)
+            string serviceName = null,
+            bool includeMessageTemplate = false)
         {
             return LogzIo(sinkConfiguration, authToken, type, new LogzioOptions
             {
@@ -66,7 +68,8 @@ namespace Serilog
                 Period = period,
                 LowercaseLevel = lowercaseLevel,
                 Environment = environment,
-                ServiceName = serviceName
+                ServiceName = serviceName,
+                IncludeMessageTemplate = includeMessageTemplate
             });
         }
 
