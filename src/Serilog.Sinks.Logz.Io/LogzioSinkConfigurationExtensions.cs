@@ -36,6 +36,11 @@ namespace Serilog
         /// <param name="boostProperties">When true, does not add 'properties' prefix.</param>
         /// <param name="dataCenterSubDomain">The logz.io datacenter specific sub-domain to send the logs to. options: "listener" (default, US), "listener-eu" (EU)</param>
         /// <param name="restrictedToMinimumLevel">Specifies minimal level for log events</param>
+        /// <param name="batchPostingLimit">The maximum number of events to post in a single batch</param>
+        /// <param name="period">The time to wait between checking for event batches</param>
+        /// <param name="lowercaseLevel">Set to true to push log level as lowercase</param>
+        /// <param name="environment">The environment name, default is empty and not sent to server</param>
+        /// <param name="serviceName">The microservice name, default is empty and not sent to server</param>
         /// <param name="includeMessageTemplate">When true the message template is included in the logs</param>
         /// <returns>Logger configuration, allowing configuration to continue.</returns>
         public static LoggerConfiguration LogzIo(
@@ -46,6 +51,11 @@ namespace Serilog
             bool boostProperties = false,
             string dataCenterSubDomain = "listener",
             LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose,
+            int? batchPostingLimit = null,
+            TimeSpan? period = null,
+            bool lowercaseLevel = false,
+            string environment = null,
+            string serviceName = null,
             bool includeMessageTemplate = false)
         {
             return LogzIo(sinkConfiguration, authToken, type, new LogzioOptions
@@ -54,6 +64,11 @@ namespace Serilog
                 BoostProperties = boostProperties,
                 DataCenterSubDomain = dataCenterSubDomain,
                 RestrictedToMinimumLevel = restrictedToMinimumLevel,
+                BatchPostingLimit = batchPostingLimit,
+                Period = period,
+                LowercaseLevel = lowercaseLevel,
+                Environment = environment,
+                ServiceName = serviceName,
                 IncludeMessageTemplate = includeMessageTemplate
             });
         }
