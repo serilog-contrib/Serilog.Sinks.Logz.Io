@@ -71,5 +71,10 @@ namespace Serilog.Sinks.Logz.Io
             {"SourceContext", "logger"},
             {"ThreadId", "thread"},
         };
+
+        /// <summary>
+        /// Gets or sets the failure callback.
+        /// </summary>
+        public Action<Exception> FailureCallback { get; set; } = null;
     }
 }

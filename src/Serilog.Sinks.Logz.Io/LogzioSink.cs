@@ -71,7 +71,8 @@ namespace Serilog.Sinks.Logz.Io
         /// <param name="dataCenterSubDomain">The logz.io datacenter specific sub-domain to send the logs to. options: "listener" (default, US), "listener-eu" (EU)</param>
         /// <param name="includeMessageTemplate">When true the message template is included in the logs</param>
         /// <param name="port">When specified overrides default port</param>
-        public LogzioSink(IHttpClient client, string authToken, string type, int batchPostingLimit, TimeSpan period, bool useHttps = true, bool boostProperties = false, string dataCenterSubDomain = "listener", bool includeMessageTemplate = false, int? port = null)
+        /// <param name="failureCallback">The failure callback.</param>
+        public LogzioSink(IHttpClient client, string authToken, string type, int batchPostingLimit, TimeSpan period, bool useHttps = true, bool boostProperties = false, string dataCenterSubDomain = "listener", bool includeMessageTemplate = false, int? port = null, Action<Exception> failureCallback = null)
             : this(client, authToken, type, new LogzioOptions
             {
                 BatchPostingLimit = batchPostingLimit,
@@ -80,7 +81,8 @@ namespace Serilog.Sinks.Logz.Io
                 BoostProperties = boostProperties,
                 DataCenterSubDomain = dataCenterSubDomain,
                 IncludeMessageTemplate = includeMessageTemplate,
-                Port = port
+                Port = port,
+                FailureCallback = failureCallback
             })
         {
         }
@@ -125,12 +127,20 @@ namespace Serilog.Sinks.Logz.Io
             var payload = FormatPayload(events);
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
 
-            var result = await _client
-                .PostAsync(_requestUrl, content)
-                .ConfigureAwait(false);
+            try
+            {
+                var result = await _client
+                                 .PostAsync(_requestUrl, content)
+                                 .ConfigureAwait(false);
 
-            if (!result.IsSuccessStatusCode)
-                throw new LoggingFailedException($"Received failed result {result.StatusCode} when posting events to {_requestUrl}");
+                if (!result.IsSuccessStatusCode)
+                    throw new LoggingFailedException($"Received failed result {result.StatusCode} when posting events to {_requestUrl}");
+            }
+            catch (Exception ex)
+            {
+                SelfLog.WriteLine($"{ex.Message} {ex.StackTrace}");
+                _options.FailureCallback?.Invoke(ex);
+            }
         }
 
         #endregion
