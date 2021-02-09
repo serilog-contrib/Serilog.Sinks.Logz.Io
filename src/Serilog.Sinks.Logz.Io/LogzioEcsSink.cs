@@ -28,6 +28,7 @@ namespace Serilog.Sinks.Logz.Io
 {
     /// <summary>
     /// Send log events using HTTP POST over the network.
+    /// https://app-eu.logz.io/#/dashboard/data-sources/Bulk-HTTPS
     /// </summary>
     public sealed class LogzioEcsSink : PeriodicBatchingSink
     {
