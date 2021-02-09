@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net461</TargetFrameworks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Mantas Audickas</Authors>
+    <Company />
+    <Description>Serilog event sink that sends logs to Logz.io.</Description>
+    <PackageProjectUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</RepositoryUrl>
+    <PackageTags>Serilog LogzIo</PackageTags>
+    <Version>2.3.0</Version>
+    <PackageReleaseNotes>* additional arguments to configure sink</PackageReleaseNotes>
+    <AssemblyVersion>2.3.0.0</AssemblyVersion>
+    <FileVersion>2.3.0.0</FileVersion>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+      <None Include="..\..\LICENSE" Link="license\LICENSE">
+          <Pack>true</Pack>
+          <PackagePath></PackagePath>
+      </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Elastic.CommonSchema.Serilog" Version="1.5.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.3.0" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='net45'">
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+  </ItemGroup>
+</Project>
