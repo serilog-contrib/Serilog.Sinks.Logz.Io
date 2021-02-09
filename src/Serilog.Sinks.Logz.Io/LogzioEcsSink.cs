@@ -51,7 +51,7 @@ namespace Serilog.Sinks.Logz.Io
         public static string OverrideLogzIoUrl = "";
         
         private readonly IHttpClient _client;
-        private readonly string _requestUrl;
+        private readonly string? _requestUrl;
 
         private readonly IEcsTextFormatterConfiguration _formatterConfiguration;
 
@@ -94,9 +94,16 @@ namespace Serilog.Sinks.Logz.Io
             }
             else
             {
-                _requestUrl = useHttps
-                    ? _logzIoHttpsUrl.Format(authToken, type, dataCenterSubDomain, dataCenterPort)
-                    : _logzIoHttpUrl.Format(authToken, type, dataCenterSubDomain, dataCenterPort);
+                if (!string.IsNullOrWhiteSpace(authToken))
+                {
+                    _requestUrl = useHttps
+                        ? _logzIoHttpsUrl.Format(authToken, type, dataCenterSubDomain, dataCenterPort)
+                        : _logzIoHttpUrl.Format(authToken, type, dataCenterSubDomain, dataCenterPort);
+                }
+                else
+                {
+                    SelfLog.WriteLine("LogzIo token is not specified! Sink will not send any events.");
+                }
             }
 
             _formatterConfiguration = formatterConfiguration ?? new EcsTextFormatterConfiguration();
@@ -110,6 +117,9 @@ namespace Serilog.Sinks.Logz.Io
         /// <param name="events">The events to emit.</param>
         protected override async Task EmitBatchAsync(IEnumerable<LogEvent> events)
         {
+            if (_requestUrl == null || string.IsNullOrWhiteSpace(_requestUrl))
+                return;
+
             using var stream = FormatToStream(events, _formatterConfiguration);
             using var content = new StreamContent(stream);
 
@@ -122,6 +132,8 @@ namespace Serilog.Sinks.Logz.Io
             if (!result.IsSuccessStatusCode)
             {
                 var response = await result.Content.ReadAsStringAsync();
+
+                SelfLog.WriteLine($"Received failed result {result.StatusCode} when posting events to {_requestUrl}. Response: {response}.");
 
                 throw new LoggingFailedException($"Received failed result {result.StatusCode} when posting events to {_requestUrl}. Response: {response}.");
             }
