@@ -31,8 +31,8 @@ namespace Serilog.Sinks.Logz.Io
     /// </summary>
     public sealed class LogzioSink : PeriodicBatchingSink
     {
-        private readonly LogzIoUrl LogzIoHttpUrl = new LogzIoUrl("http://{2}.logz.io:{3}/?token={0}&type={1}", 8070);
-        private readonly LogzIoUrl LogzIoHttpsUrl = new LogzIoUrl("https://{2}.logz.io:{3}/?token={0}&type={1}", 8071);
+        private readonly LogzIoUrl _logzIoHttpUrl = new("http://{2}.logz.io:{3}/?token={0}&type={1}", 8070);
+        private readonly LogzIoUrl _logzIoHttpsUrl = new("https://{2}.logz.io:{3}/?token={0}&type={1}", 8071);
 
         /// <summary>
         /// The default batch posting limit.
@@ -53,7 +53,7 @@ namespace Serilog.Sinks.Logz.Io
         private readonly LogzioOptions _options;
         private readonly string _requestUrl;
 
-        private readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings
+        private readonly JsonSerializerSettings _jsonSerializerSettings = new()
         {
             ReferenceLoopHandling = ReferenceLoopHandling.Ignore
         };
@@ -92,7 +92,7 @@ namespace Serilog.Sinks.Logz.Io
         /// <param name="authToken">The token for logzio.</param>
         /// <param name="type">Your log type - it helps classify the logs you send.</param>
         /// <param name="options">LogzIo configuration options</param>
-        public LogzioSink(IHttpClient client, string authToken, string type, LogzioOptions options)
+        public LogzioSink(IHttpClient client, string authToken, string type, LogzioOptions? options)
             : base(options?.BatchPostingLimit ?? DefaultBatchPostingLimit, options?.Period ?? DefaultPeriod)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
@@ -109,8 +109,8 @@ namespace Serilog.Sinks.Logz.Io
             else
             {
                 _requestUrl = _options.UseHttps
-                    ? LogzIoHttpsUrl.Format(authToken, type, _options.DataCenterSubDomain, _options.Port)
-                    : LogzIoHttpUrl.Format(authToken, type, _options.DataCenterSubDomain, _options.Port);
+                    ? _logzIoHttpsUrl.Format(authToken, type, _options.DataCenterSubDomain, _options.Port)
+                    : _logzIoHttpUrl.Format(authToken, type, _options.DataCenterSubDomain, _options.Port);
             }
         }
 

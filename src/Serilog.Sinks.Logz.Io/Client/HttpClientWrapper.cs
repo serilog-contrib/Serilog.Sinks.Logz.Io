@@ -19,7 +19,7 @@ namespace Serilog.Sinks.Logz.Io.Client
 {
     internal class HttpClientWrapper : IHttpClient
     {
-        private static readonly HttpClient Client = new HttpClient();
+        private static readonly HttpClient Client = new();
 
         public Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content)
         {

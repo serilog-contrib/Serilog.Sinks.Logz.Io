@@ -13,7 +13,7 @@ namespace Serilog.Sinks.Logz.Io
 
         public string Format(string token, string type, string dataCenter, int? port)
         {
-            if (port == null)
+            if (port == null || port == 0)
                 port = DefaultPort;
 
             return string.Format(UrlTemplate, token, type, dataCenter, port);

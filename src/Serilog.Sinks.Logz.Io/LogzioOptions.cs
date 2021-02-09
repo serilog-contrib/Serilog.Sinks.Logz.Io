@@ -39,12 +39,12 @@ namespace Serilog.Sinks.Logz.Io
         /// <summary>
         /// Set environment name, default is empty and not sent to server
         /// </summary>
-        public string Environment { get; set; } = string.Empty;
+        public string? Environment { get; set; } = string.Empty;
         
         /// <summary>
-        /// Set microservice name, default is empty and not sent to server
+        /// Set service name, default is empty and not sent to server
         /// </summary>
-        public string ServiceName { get; set; } = string.Empty;
+        public string? ServiceName { get; set; } = string.Empty;
 
         /// <summary>
         /// The data center specific endpoint sub domain to use, select one of the following

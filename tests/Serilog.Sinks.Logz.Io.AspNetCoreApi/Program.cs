@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Serilog.Sinks.Logz.Io.AspNetCoreApi.Logging;
 
 namespace Serilog.Sinks.Logz.Io.AspNetCoreApi
 {
@@ -12,7 +13,7 @@ namespace Serilog.Sinks.Logz.Io.AspNetCoreApi
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration), true)
+                .UseLogzIoSerilog()
                 .UseStartup<Startup>();
     }
 }
