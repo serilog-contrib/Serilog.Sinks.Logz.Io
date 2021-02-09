@@ -1,4 +1,4 @@
-namespace Serilog.Sinks.Logz.Io
+namespace Serilog.Sinks.Logz.Io.Ecs
 {
     public class LogzIoUrl
     {
@@ -13,7 +13,7 @@ namespace Serilog.Sinks.Logz.Io
 
         public string Format(string token, string type, string dataCenter, int? port)
         {
-            if (port == null || port == 0)
+            if (port == null)
                 port = DefaultPort;
 
             return string.Format(UrlTemplate, token, type, dataCenter, port);

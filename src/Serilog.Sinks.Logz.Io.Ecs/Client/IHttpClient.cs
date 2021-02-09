@@ -17,13 +17,17 @@ using System.Threading.Tasks;
 
 namespace Serilog.Sinks.Logz.Io.Client
 {
-    internal class HttpClientWrapper : IHttpClient
+    /// <summary>
+    /// Interface responsible for posting HTTP requests.
+    /// </summary>
+    public interface IHttpClient
     {
-        private static readonly HttpClient Client = new();
-
-        public Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content)
-        {
-            return Client.PostAsync(requestUri, content);
-        }
+        /// <summary>
+        /// Sends a POST request to the specified Uri as an asynchronous operation.
+        /// </summary>
+        /// <param name="requestUri">The Uri the request is sent to.</param>
+        /// <param name="content">The HTTP request content sent to the server.</param>
+        /// <returns>The task object representing the asynchronous operation.</returns>
+        Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content);
     }
 }

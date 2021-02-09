@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using Serilog.Events;
 
-namespace Serilog.Sinks.Logz.Io
+namespace Serilog.Sinks.Logz.Io.Ecs
 {
     public class LogzioOptions
     {
         /// <summary>
-        /// The maximum number of events to post in a single batch. The default is <see cref="LogzioSink.DefaultBatchPostingLimit"/>.
+        /// The maximum number of events to post in a single batch. The default is <see cref="LogzioEcsSink.DefaultBatchPostingLimit"/>.
         /// </summary>
         public int? BatchPostingLimit { get; set; }
 
         /// <summary>
-        /// The time to wait between checking for event batches. The default is <see cref="LogzioSink.DefaultPeriod"/>.
+        /// The time to wait between checking for event batches. The default is <see cref="LogzioEcsSink.DefaultPeriod"/>.
         /// </summary>
         public TimeSpan? Period { get; set; }
 
@@ -39,12 +39,12 @@ namespace Serilog.Sinks.Logz.Io
         /// <summary>
         /// Set environment name, default is empty and not sent to server
         /// </summary>
-        public string? Environment { get; set; } = string.Empty;
+        public string Environment { get; set; } = string.Empty;
         
         /// <summary>
-        /// Set service name, default is empty and not sent to server
+        /// Set micro service name, default is empty and not sent to server
         /// </summary>
-        public string? ServiceName { get; set; } = string.Empty;
+        public string ServiceName { get; set; } = string.Empty;
 
         /// <summary>
         /// The data center specific endpoint sub domain to use, select one of the following

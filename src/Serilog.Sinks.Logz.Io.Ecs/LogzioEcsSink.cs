@@ -14,25 +14,27 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Net.Http;
-using System.Text;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using Elastic.CommonSchema;
+using Elastic.CommonSchema.Serilog;
 using Serilog.Debugging;
 using Serilog.Events;
+using Serilog.Formatting;
 using Serilog.Sinks.Logz.Io.Client;
 using Serilog.Sinks.PeriodicBatching;
 
-namespace Serilog.Sinks.Logz.Io
+namespace Serilog.Sinks.Logz.Io.Ecs
 {
     /// <summary>
     /// Send log events using HTTP POST over the network.
     /// </summary>
     public sealed class LogzioSink : PeriodicBatchingSink
     {
-        private readonly LogzIoUrl _logzIoHttpUrl = new("http://{2}.logz.io:{3}/?token={0}&type={1}", 8070);
-        private readonly LogzIoUrl _logzIoHttpsUrl = new("https://{2}.logz.io:{3}/?token={0}&type={1}", 8071);
+        private readonly LogzIoUrl LogzIoHttpUrl = new LogzIoUrl("http://{2}.logz.io:{3}/?token={0}&type={1}", 8070);
+        private readonly LogzIoUrl LogzIoHttpsUrl = new LogzIoUrl("https://{2}.logz.io:{3}/?token={0}&type={1}", 8071);
 
         /// <summary>
         /// The default batch posting limit.
@@ -53,10 +55,8 @@ namespace Serilog.Sinks.Logz.Io
         private readonly LogzioOptions _options;
         private readonly string _requestUrl;
 
-        private readonly JsonSerializerSettings _jsonSerializerSettings = new()
-        {
-            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-        };
+        private static readonly EcsTextFormatterConfiguration Config = new EcsTextFormatterConfiguration();
+        private readonly EcsTextFormatter _formatter;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LogzioSink"/> class. 
@@ -92,7 +92,7 @@ namespace Serilog.Sinks.Logz.Io
         /// <param name="authToken">The token for logzio.</param>
         /// <param name="type">Your log type - it helps classify the logs you send.</param>
         /// <param name="options">LogzIo configuration options</param>
-        public LogzioSink(IHttpClient client, string authToken, string type, LogzioOptions? options)
+        public LogzioSink(IHttpClient client, string authToken, string type, LogzioOptions options)
             : base(options?.BatchPostingLimit ?? DefaultBatchPostingLimit, options?.Period ?? DefaultPeriod)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
@@ -109,9 +109,35 @@ namespace Serilog.Sinks.Logz.Io
             else
             {
                 _requestUrl = _options.UseHttps
-                    ? _logzIoHttpsUrl.Format(authToken, type, _options.DataCenterSubDomain, _options.Port)
-                    : _logzIoHttpUrl.Format(authToken, type, _options.DataCenterSubDomain, _options.Port);
+                    ? LogzIoHttpsUrl.Format(authToken, type, _options.DataCenterSubDomain, _options.Port)
+                    : LogzIoHttpUrl.Format(authToken, type, _options.DataCenterSubDomain, _options.Port);
             }
+
+            Config.MapCustom((log, logEvent) =>
+            {
+                if (log.Metadata.TryGetValue("user", out var value))
+                {
+                    log.User ??= new User();
+                    log.User.Name = value.ToString();
+                    log.Metadata.Remove("user");
+                }
+
+                log.Labels = log.Metadata;
+                log.Metadata = null;
+
+                log.Labels["environment"] = _options.Environment;
+
+                log.Service ??= new Service();
+
+                log.Service.Name = _options.ServiceName;
+                //log.User = new User()
+
+                return log;
+            });
+
+            Config.MapCurrentThread(true);
+
+            _formatter = new EcsTextFormatter(Config);
         }
 
         #region PeriodicBatchingSink Members
@@ -122,99 +148,41 @@ namespace Serilog.Sinks.Logz.Io
         /// <param name="events">The events to emit.</param>
         protected override async Task EmitBatchAsync(IEnumerable<LogEvent> events)
         {
-            var payload = FormatPayload(events);
-            var content = new StringContent(payload, Encoding.UTF8, "application/json");
+            using var stream = FormatStream(events, _formatter);
+            using var content = new StreamContent(stream);
+
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
             var result = await _client
                 .PostAsync(_requestUrl, content)
                 .ConfigureAwait(false);
 
             if (!result.IsSuccessStatusCode)
+            {
+                var response = await result.Content.ReadAsStringAsync();
+
+                Console.WriteLine($"Unable to send stream to LogzIo: {response}");
                 throw new LoggingFailedException($"Received failed result {result.StatusCode} when posting events to {_requestUrl}");
+            }
         }
 
         #endregion
 
-        private string FormatPayload(IEnumerable<LogEvent> events)
+        private MemoryStream FormatStream(IEnumerable<LogEvent> events, ITextFormatter formatter)
         {
-            var result = events
-                .Select(FormatLogEvent)
-                .ToArray();
+            var memoryStream = new MemoryStream();
 
-            return string.Join(",\n", result);
-        }
+            var writer = new StreamWriter(memoryStream) {AutoFlush = true};
 
-        private string FormatLogEvent(LogEvent loggingEvent)
-        {
-            var level = loggingEvent.Level.ToString();
-            if (_options.LowercaseLevel)
-                level = level.ToLower();
-
-            var values = new Dictionary<string, object>
+            foreach (var logEvent in events)
             {
-                {"@timestamp", loggingEvent.Timestamp.ToString("O")},
-                {"level", level},
-                {"message", loggingEvent.RenderMessage()},
-                {"exception", loggingEvent.Exception}
-            };
-
-            if (_options.IncludeMessageTemplate)
-            {
-                values.Add("messageTemplate", loggingEvent.MessageTemplate.Text);
+                _formatter.Format(logEvent, writer);
             }
 
-            if (!string.IsNullOrWhiteSpace(_options.ServiceName))
-            {
-                values.Add("service", _options.ServiceName);
-            }
+            memoryStream.Position = 0;
 
-            if (!string.IsNullOrWhiteSpace(_options.Environment))
-            {
-                values.Add("environment", _options.Environment);
-            }
-
-            if (loggingEvent.Properties != null)
-            {
-                var propertyPrefix = _options.BoostProperties ? "" : "properties.";
-
-                foreach (var property in loggingEvent.Properties)
-                {
-                    var propertyName = $"{propertyPrefix}{property.Key}";
-                    if (_options.PropertyTransformationMap != null &&
-                        _options.PropertyTransformationMap.TryGetValue(property.Key, out var mappedPropertyName) &&
-                        !string.IsNullOrWhiteSpace(mappedPropertyName))
-                    {
-                        propertyName = mappedPropertyName;
-                    }
-
-                    var propertyInternalValue = GetPropertyInternalValue(property.Value);
-                    values[propertyName] = propertyInternalValue;
-                }
-            }
-
-            return JsonConvert.SerializeObject(values, Newtonsoft.Json.Formatting.None, _jsonSerializerSettings);
-        }
-
-        private static object GetPropertyInternalValue(LogEventPropertyValue propertyValue)
-        {
-            switch (propertyValue)
-            {
-                case ScalarValue sv: return GetInternalValue(sv.Value);
-                case SequenceValue sv: return sv.Elements.Select(GetPropertyInternalValue).ToArray();
-                case DictionaryValue dv: return dv.Elements.Select(kv => new { Key = kv.Key.Value, Value = GetPropertyInternalValue(kv.Value) }).ToDictionary(i => i.Key, i => i.Value);
-                case StructureValue sv: return sv.Properties.Select(kv => new { Key = kv.Name, Value = GetPropertyInternalValue(kv.Value) }).ToDictionary(i => i.Key, i => i.Value);
-            }
-            return propertyValue.ToString();
-        }
-
-        private static object GetInternalValue(object value)
-        {
-            switch (value)
-            {
-                case Enum e: return e.ToString();
-            }
-
-            return value;
+            return memoryStream;
         }
     }
+
 }

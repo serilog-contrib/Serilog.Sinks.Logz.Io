@@ -74,6 +74,68 @@ Alternatively configuration can be done within your `appsettings.json` file:
 }
 ```
 
+## Elastic Common Schema support
+
+See for more details: https://www.elastic.co/guide/en/ecs/current/ecs-reference.html
+
+```csharp
+ILogger log = new LoggerConfiguration()
+  .MinimumLevel.Verbose()
+  .WriteTo.LogzIo(new LogzioEcsOptions
+        {
+            Type = "<log type>",
+            AuthToken = "<logzio token>",
+            DataCenter = new LogzioDataCenter
+            {
+                SubDomain = "listener",
+                Port = 8701,
+                UseHttps = true
+            }
+        },
+        batchPostingLimit: 50,
+        period: TimeSpan.FromSeconds(15),
+        restrictedToMinimumLevel: LogEventLevel.Debug
+    )
+  .CreateLogger();
+```
+
+Alternatively configuration can be done within your `appsettings.json` file, please note CustomEcsTextFormatterConfiguration setup is optional:
+
+```json
+{
+  "Serilog": {
+    "Using": [
+      "Serilog.Sinks.Console",
+      "Serilog.Sinks.Logz.Io"
+    ],
+    "MinimumLevel": {
+      "Default": "Information",
+      "Override": {
+        "Microsoft": "Information",
+        "System": "Warning"
+      }
+    },
+    "WriteTo": [
+      { "Name": "Console" },
+      {
+        "Name": "LogzIoEcs",
+        "Args": {
+          "options": {
+            "type": "<log type>",
+            "authToken": "<logzio token>"
+          },
+          "batchPostingLimit": 30,
+          "period": "00:00:02",
+          "restrictedToMinimumLevel": "Debug",
+          "formatterConfiguration": "Serilog.Sinks.Logz.Io.AspNetCoreApi.Logging.CustomEcsTextFormatterConfiguration, Serilog.Sinks.Logz.Io.AspNetCoreApi"
+        }
+      }
+    ]
+  }
+}
+```
+
+
 ## Install via NuGet
 
 If you want to include the HTTP sink in your project, you can [install it directly from NuGet](https://www.nuget.org/packages/Serilog.Sinks.Logz.Io/).

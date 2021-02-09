@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Serilog.Sinks.Logz.Io.AspNetCoreApi.Middleware;
 
 namespace Serilog.Sinks.Logz.Io.AspNetCoreApi
 {
@@ -33,13 +35,21 @@ namespace Serilog.Sinks.Logz.Io.AspNetCoreApi
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseMiddleware<LogScopeMiddleware>();
             app.UseMvc();
 
             _logger.LogDebug("DEBUG ASP.NET Core message");
-            _logger.LogInformation("INFORMATION ASP.NET Core message");
+            _logger.LogInformation("INFORMATION ASP.NET Core message {CurrentTime}", DateTime.UtcNow);
+            _logger.LogInformation("Current person {@Person}", new Person());
             _logger.LogWarning("WARNING ASP.NET Core message");
             _logger.LogError("ERROR ASP.NET Core message");
             _logger.LogCritical("FATAL ASP.NET Core message");
         }
+    }
+
+    public class Person
+    {
+        public string FirstName { get; set; } = "Mantas";
+        public int Age { get; set; } = 21;
     }
 }
