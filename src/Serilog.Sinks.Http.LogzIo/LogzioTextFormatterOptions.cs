@@ -20,12 +20,23 @@ namespace Serilog.Sinks.Http.LogzIo
         public bool IncludeMessageTemplate { get; set; } = true;
 
         /// <summary>
-        /// Specifies how to rename properties before sending to target
+        /// Enables field name transformation
         /// </summary>
-        public Dictionary<string, string> PropertyTransformationMap { get; set; } = new()
+        public LogzIoTextFormatterFieldNaming? FieldNaming { get; set; }
+
+        /// <summary>
+        /// Specifies how to rename field names before sending to target
+        /// </summary>
+        public Dictionary<string, string>? FieldNameTransformationMap { get; set; } = new()
         {
-            {"SourceContext", "logger"},
-            {"ThreadId", "thread"},
+            {"SourceContext", "Logger"},
+            {"ThreadId", "Thread"}
         };
+    }
+
+    public enum LogzIoTextFormatterFieldNaming
+    {
+        CamelCase,
+        LowerCase
     }
 }

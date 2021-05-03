@@ -47,7 +47,8 @@ The sink will be configured as durable, i.e. log events are persisted on disk be
           "logzioTextFormatterOptions": {
             "BoostProperties": true,
             "LowercaseLevel": true,
-            "IncludeMessageTemplate": true
+            "IncludeMessageTemplate": true,
+            "FieldNaming": "CamelCase"
           }
         }
       }
@@ -61,6 +62,7 @@ In the example above logzIo formatter options are default, there is no need to s
 - BoostProperties: When true, does not add 'properties' prefix.
 - LowercaseLevel: Set to true to push log level as lowercase.
 - IncludeMessageTemplate: When true the message template is included in the logs.
+- FieldNaming: allows to transform field names, possible values: null (default), CamelCase, LowerCase
 
 ## Configuration from code
 

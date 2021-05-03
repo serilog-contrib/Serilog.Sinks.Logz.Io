@@ -33,7 +33,7 @@ namespace Serilog.Sinks.Http.LogzIo.Tests
                     {
                         configuration
                             .WriteTo.LogzIoDurableHttp(
-                                "https://listener-eu.logz.io:8071/?type=dev&token=ERTvsnlEyBUkCdUuyrbGCFvyhRLemZQy",
+                                "https://listener-eu.logz.io:8071/?type=dev&token=<token>",
                                 logzioTextFormatterOptions: new LogzioTextFormatterOptions
                                 {
                                     BoostProperties = true,

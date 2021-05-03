@@ -13,6 +13,14 @@ namespace Serilog.Sinks.Http.LogzIo
     {
         private readonly LogzioTextFormatterOptions _options;
 
+        private readonly string _messageFieldName = "message";  // must be always in lowercase because of logz.io kibana configuration
+        private readonly string _messageTemplateFieldName = "MessageTemplate";
+        private readonly string _levelFieldName = "Level";
+        private readonly string _exceptionFieldName = "Exception";
+        private readonly string _propertiesPrefix = "Properties.";
+
+        private readonly Func<string, string> _transformFieldName;
+
         public LogzIoTextFormatter(): this(null)
         {
         }
@@ -20,6 +28,35 @@ namespace Serilog.Sinks.Http.LogzIo
         public LogzIoTextFormatter(LogzioTextFormatterOptions? options)
         {
             _options = options ?? new LogzioTextFormatterOptions();
+
+            _transformFieldName = field => field;
+
+            var fieldNaming = _options.FieldNaming;
+            if (fieldNaming.HasValue)
+            {
+                switch (fieldNaming.Value)
+                {
+                    case LogzIoTextFormatterFieldNaming.CamelCase:
+                        _transformFieldName = field =>
+                        {
+                            if (string.IsNullOrEmpty(field))
+                                return field;
+
+                            return char.ToLower(field[0]) + field.Substring(1);
+                        };
+                        break;
+                    case LogzIoTextFormatterFieldNaming.LowerCase:
+                        _transformFieldName = field => field.ToLower();
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            _messageTemplateFieldName = _transformFieldName(_messageTemplateFieldName);
+            _levelFieldName = _transformFieldName(_levelFieldName);
+            _exceptionFieldName = _transformFieldName(_exceptionFieldName);
+            _propertiesPrefix = _transformFieldName(_propertiesPrefix);
         }
 
         public void Format(LogEvent logEvent, TextWriter output)
@@ -32,7 +69,7 @@ namespace Serilog.Sinks.Http.LogzIo
             }
             catch (Exception e)
             {
-                LogNonFormattableEvent(logEvent, e);
+                LogAsInternalEvent(logEvent, e);
             }
         }
 
@@ -45,36 +82,58 @@ namespace Serilog.Sinks.Http.LogzIo
             var values = new Dictionary<string, object>
             {
                 {"@timestamp", loggingEvent.Timestamp.ToString("O")},
-                {"level", level},
-                {"message", loggingEvent.RenderMessage()},
-                {"exception", loggingEvent.Exception}
+                {_levelFieldName, level},
+                {_messageFieldName, loggingEvent.RenderMessage()},
+                {_exceptionFieldName, loggingEvent.Exception}
             };
 
             if (_options.IncludeMessageTemplate)
             {
-                values.Add("messageTemplate", loggingEvent.MessageTemplate.Text);
+                values.Add(_messageTemplateFieldName, loggingEvent.MessageTemplate.Text);
             }
 
             if (loggingEvent.Properties != null)
             {
-                var propertyPrefix = _options.BoostProperties ? "" : "properties.";
+                var propertyPrefix = _options.BoostProperties ? "" : _propertiesPrefix;
 
                 foreach (var property in loggingEvent.Properties)
                 {
-                    var propertyName = $"{propertyPrefix}{property.Key}";
-                    if (_options.PropertyTransformationMap != null &&
-                        _options.PropertyTransformationMap.TryGetValue(property.Key, out var mappedPropertyName) &&
-                        !string.IsNullOrWhiteSpace(mappedPropertyName))
+                    if (!OverrideFieldName(property.Key, out var fieldName))
                     {
-                        propertyName = mappedPropertyName;
+                        fieldName = $"{propertyPrefix}{property.Key}";
                     }
 
+                    fieldName = _transformFieldName(fieldName!);
+
                     var propertyInternalValue = GetPropertyInternalValue(property.Value);
-                    values[propertyName] = propertyInternalValue;
+                    values[fieldName] = propertyInternalValue;
                 }
             }
 
             return values;
+        }
+
+        private bool OverrideFieldName(string key, out string? overridenFieldName)
+        {
+            overridenFieldName = null;
+
+            if (_options.FieldNameTransformationMap == null)
+            {
+                return false;
+            }
+
+            if (!_options.FieldNameTransformationMap.TryGetValue(key, out var fieldName))
+            {
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(fieldName))
+            {
+                return false;
+            }
+
+            overridenFieldName = fieldName;
+            return true;
         }
 
         private static object GetPropertyInternalValue(LogEventPropertyValue propertyValue)
@@ -99,7 +158,7 @@ namespace Serilog.Sinks.Http.LogzIo
             return value;
         }
 
-        private static void LogNonFormattableEvent(LogEvent logEvent, Exception e)
+        private static void LogAsInternalEvent(LogEvent logEvent, Exception e)
         {
             SelfLog.WriteLine(
                 "Event at {0} with message template {1} could not be formatted into JSON and will be dropped: {2}",
