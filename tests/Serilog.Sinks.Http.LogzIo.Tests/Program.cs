@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
@@ -10,6 +11,7 @@ namespace Serilog.Sinks.Http.LogzIo.Tests
         {
             try
             {
+                RunTests();
                 CreateHostBuilder(args).Build().Run();
             }
             catch (Exception e)
@@ -48,5 +50,29 @@ namespace Serilog.Sinks.Http.LogzIo.Tests
 
                     webBuilder.UseStartup<Startup>();
                 });
+
+        public static void RunTests()
+        {
+            var sample = new Sample
+            {
+                Type = typeof(Sample)
+            };
+
+            var serializerOptions = new JsonSerializerOptions
+            {
+                IgnoreNullValues = true,
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            };
+
+            serializerOptions.Converters.Add(new LogzIoTypeConverter());
+
+            var result = JsonSerializer.Serialize(sample, serializerOptions);
+            Console.WriteLine(result);
+        }
+
+        private class Sample
+        {
+            public Type Type { get; set; }
+        }
     }
 }

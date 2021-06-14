@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Formatting;
@@ -12,6 +13,7 @@ namespace Serilog.Sinks.Http.LogzIo
     public class LogzIoTextFormatter: ITextFormatter
     {
         private readonly LogzioTextFormatterOptions _options;
+        private readonly JsonSerializerOptions _serializerOptions;
 
         private readonly string _messageFieldName = "message";  // must be always in lowercase because of logz.io kibana configuration
         private readonly string _messageTemplateFieldName = "MessageTemplate";
@@ -20,6 +22,10 @@ namespace Serilog.Sinks.Http.LogzIo
         private readonly string _propertiesPrefix = "Properties.";
 
         private readonly Func<string, string> _transformFieldName;
+
+        static LogzIoTextFormatter()
+        {
+        }
 
         public LogzIoTextFormatter(): this(null)
         {
@@ -57,6 +63,17 @@ namespace Serilog.Sinks.Http.LogzIo
             _levelFieldName = _transformFieldName(_levelFieldName);
             _exceptionFieldName = _transformFieldName(_exceptionFieldName);
             _propertiesPrefix = _transformFieldName(_propertiesPrefix);
+
+            _serializerOptions = new JsonSerializerOptions
+            {
+                IgnoreNullValues = true
+            };
+
+            _serializerOptions.Converters.Add(new LogzIoTypeConverter());
+
+            _serializerOptions.Converters.Add(fieldNaming == LogzIoTextFormatterFieldNaming.CamelCase
+                ? new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+                : new JsonStringEnumConverter());
         }
 
         public void Format(LogEvent logEvent, TextWriter output)
@@ -64,7 +81,7 @@ namespace Serilog.Sinks.Http.LogzIo
             try
             {
                 var values = Format(logEvent);
-                string content = JsonSerializer.Serialize(values);
+                string content = JsonSerializer.Serialize(values, _serializerOptions);
                 output.WriteLine(content);
             }
             catch (Exception e)
