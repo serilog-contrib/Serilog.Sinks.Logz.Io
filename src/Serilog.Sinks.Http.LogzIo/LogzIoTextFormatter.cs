@@ -66,7 +66,8 @@ namespace Serilog.Sinks.Http.LogzIo
 
             _serializerOptions = new JsonSerializerOptions
             {
-                IgnoreNullValues = true
+                IgnoreNullValues = true,
+                ReferenceHandler = ReferenceHandler.Preserve
             };
 
             _serializerOptions.Converters.Add(new LogzIoTypeConverter());
