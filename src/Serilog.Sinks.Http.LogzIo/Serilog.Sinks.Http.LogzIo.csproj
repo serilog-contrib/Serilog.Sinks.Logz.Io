@@ -1,32 +1,69 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net461;net5.0</TargetFrameworks>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Authors>Mantas Audickas</Authors>
-    <Company />
-    <Description>Serilog event sink that sends logs to Logz.io.</Description>
-    <PackageProjectUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</RepositoryUrl>
-    <PackageTags>Serilog LogzIo</PackageTags>
-    <Version>1.3.0</Version>
-    <PackageReleaseNotes>* Fixes 'A possible object cycle was detected' exception</PackageReleaseNotes>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <LangVersion>latest</LangVersion>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+    <PropertyGroup>
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+        <TargetFrameworks>net461;netstandard2.0;net5.0</TargetFrameworks>
+        <Version>2.0.0</Version>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <FileVersion>2.0.0.0</FileVersion>
+    </PropertyGroup>
+    
+    <PropertyGroup>
+        <PackageId>Serilog.Sinks.Http.LogzIo</PackageId>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Authors>Mantas Audickas</Authors>
+        <Company>mentalist.dev</Company>
+        <Description>Serilog event sink that sends logs to Logz.io.</Description>
+        <PackageProjectUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</RepositoryUrl>
+        <PackageTags>Serilog LogzIo</PackageTags>
+        <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageReleaseNotes>* Switch to Newtonsoft.Json serializer</PackageReleaseNotes>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <None Include="..\..\LICENSE" Link="license\LICENSE">
-      <Pack>true</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
+    <PropertyGroup>
+        <AssemblyName>Serilog.Sinks.Http.LogzIo</AssemblyName>
+        <SignAssembly>true</SignAssembly>
+        <AssemblyOriginatorKeyFile>..\..\key.snk</AssemblyOriginatorKeyFile>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Serilog.Sinks.Http" Version="7.2.0" />
-    <PackageReference Include="System.Text.Json" Version="5.0.2" />
-  </ItemGroup>
+    <PropertyGroup Condition=" '$(TargetFramework)' == 'net461' ">
+        <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="..\Serilog.Sinks.Logz.Io\Buffered\DurableSinkConfigurationExtensions.cs" Link="DurableSinkConfigurationExtensions.cs" />
+        <Compile Include="..\Serilog.Sinks.Logz.Io\Buffered\LogzIoBatchFormatter.cs" Link="LogzIoBatchFormatter.cs" />
+        <Compile Include="..\Serilog.Sinks.Logz.Io\Buffered\LogzIoTextFormatter.cs" Link="LogzIoTextFormatter.cs" />
+        <Compile Include="..\Serilog.Sinks.Logz.Io\Buffered\LogzioTextFormatterOptions.cs" Link="LogzioTextFormatterOptions.cs" />
+        <Compile Include="..\Serilog.Sinks.Logz.Io\Client\HttpClientWrapper.cs" Link="HttpClientWrapper.cs" />
+        <Compile Include="..\Serilog.Sinks.Logz.Io\Client\IHttpClient.cs" Link="IHttpClient.cs" />
+        <Compile Include="..\Serilog.Sinks.Logz.Io\LogzioEcsOptions.cs" Link="LogzioEcsOptions.cs" />
+        <Compile Include="..\Serilog.Sinks.Logz.Io\LogzioEcsSink.cs" Link="LogzioEcsSink.cs" />
+        <Compile Include="..\Serilog.Sinks.Logz.Io\LogzioOptions.cs" Link="LogzioOptions.cs" />
+        <Compile Include="..\Serilog.Sinks.Logz.Io\LogzIoSerializer.cs" Link="LogzIoSerializer.cs" />
+        <Compile Include="..\Serilog.Sinks.Logz.Io\LogzioSink.cs" Link="LogzioSink.cs" />
+        <Compile Include="..\Serilog.Sinks.Logz.Io\LogzioSinkConfigurationExtensions.cs" Link="LogzioSinkConfigurationExtensions.cs" />
+        <Compile Include="..\Serilog.Sinks.Logz.Io\LogzIoUrl.cs" Link="LogzIoUrl.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\icon.png" Pack="true" Visible="false" PackagePath="" />
+        <None Include="..\..\README.md" Link="README.md" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Elastic.CommonSchema.Serilog" Version="1.5.3" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.3.0" />
+        <PackageReference Include="Serilog.Sinks.Http" Version="7.2.0" />
+    </ItemGroup>
+
 </Project>

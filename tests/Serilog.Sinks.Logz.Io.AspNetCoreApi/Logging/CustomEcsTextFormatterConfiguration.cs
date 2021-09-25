@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Elastic.CommonSchema;
 using Elastic.CommonSchema.Serilog;
 using Serilog.Events;
@@ -58,5 +59,6 @@ namespace Serilog.Sinks.Logz.Io.AspNetCoreApi.Logging
         public Func<Base, LogEvent, Base> MapCustom { get; set; }
         public bool MapExceptions { get; set; }
         public IHttpAdapter MapHttpAdapter { get; set; }
+        public ISet<string> LogEventPropertiesToFilter { get; set; }
     }
 }

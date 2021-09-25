@@ -18,7 +18,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Sinks.Logz.Io.Client;
@@ -37,7 +36,7 @@ namespace Serilog.Sinks.Logz.Io
         /// <summary>
         /// The default batch posting limit.
         /// </summary>
-        public static int DefaultBatchPostingLimit { get; } = 1000;
+        public static int DefaultBatchPostingLimit => 1000;
 
         /// <summary>
         /// The default period.
@@ -53,11 +52,6 @@ namespace Serilog.Sinks.Logz.Io
         private readonly LogzioOptions _options;
         private readonly string _requestUrl;
 
-        private readonly JsonSerializerSettings _jsonSerializerSettings = new()
-        {
-            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-        };
-
         /// <summary>
         /// Initializes a new instance of the <see cref="LogzioSink"/> class. 
         /// </summary>
@@ -71,8 +65,17 @@ namespace Serilog.Sinks.Logz.Io
         /// <param name="dataCenterSubDomain">The logz.io datacenter specific sub-domain to send the logs to. options: "listener" (default, US), "listener-eu" (EU)</param>
         /// <param name="includeMessageTemplate">When true the message template is included in the logs</param>
         /// <param name="port">When specified overrides default port</param>
-        public LogzioSink(IHttpClient client, string authToken, string type, int batchPostingLimit, TimeSpan period, bool useHttps = true, bool boostProperties = false, string dataCenterSubDomain = "listener", bool includeMessageTemplate = false, int? port = null)
-            : this(client, authToken, type, new LogzioOptions
+        public LogzioSink(IHttpClient client
+            , string authToken
+            , string type
+            , int batchPostingLimit
+            , TimeSpan period
+            , bool useHttps = true
+            , bool boostProperties = false
+            , string dataCenterSubDomain = "listener"
+            , bool includeMessageTemplate = false
+            , int? port = null
+            ) : this(client, authToken, type, new LogzioOptions
             {
                 BatchPostingLimit = batchPostingLimit,
                 Period = period,
@@ -92,8 +95,11 @@ namespace Serilog.Sinks.Logz.Io
         /// <param name="authToken">The token for logzio.</param>
         /// <param name="type">Your log type - it helps classify the logs you send.</param>
         /// <param name="options">LogzIo configuration options</param>
-        public LogzioSink(IHttpClient client, string authToken, string type, LogzioOptions? options)
-            : base(options?.BatchPostingLimit ?? DefaultBatchPostingLimit, options?.Period ?? DefaultPeriod)
+        public LogzioSink(IHttpClient client
+            , string authToken
+            , string type
+            , LogzioOptions? options
+            ) : base(options?.BatchPostingLimit ?? DefaultBatchPostingLimit, options?.Period ?? DefaultPeriod)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
 
@@ -163,12 +169,12 @@ namespace Serilog.Sinks.Logz.Io
                 values.Add("messageTemplate", loggingEvent.MessageTemplate.Text);
             }
 
-            if (!string.IsNullOrWhiteSpace(_options.ServiceName))
+            if (_options.ServiceName != null)
             {
                 values.Add("service", _options.ServiceName);
             }
 
-            if (!string.IsNullOrWhiteSpace(_options.Environment))
+            if (_options.Environment != null)
             {
                 values.Add("environment", _options.Environment);
             }
@@ -192,7 +198,7 @@ namespace Serilog.Sinks.Logz.Io
                 }
             }
 
-            return JsonConvert.SerializeObject(values, Newtonsoft.Json.Formatting.None, _jsonSerializerSettings);
+            return LogzIoSerializer.Instance.Serialize(values);
         }
 
         private static object GetPropertyInternalValue(LogEventPropertyValue propertyValue)

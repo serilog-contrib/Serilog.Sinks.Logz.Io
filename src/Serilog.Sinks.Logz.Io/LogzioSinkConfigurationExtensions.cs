@@ -85,7 +85,7 @@ namespace Serilog
         /// <param name="type">Your log type - it helps classify the logs you send.</param>
         /// <param name="options">Logzio configuration options</param>
         /// <returns>Logger configuration, allowing configuration to continue.</returns>
-        public static LoggerConfiguration LogzIo(this LoggerSinkConfiguration sinkConfiguration, string authToken, string type, LogzioOptions options = null)
+        public static LoggerConfiguration LogzIo(this LoggerSinkConfiguration sinkConfiguration, string authToken, string type, LogzioOptions? options = null)
         {
             if (sinkConfiguration == null)
                 throw new ArgumentNullException(nameof(sinkConfiguration));

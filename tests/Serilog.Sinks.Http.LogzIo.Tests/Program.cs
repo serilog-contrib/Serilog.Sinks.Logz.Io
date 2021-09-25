@@ -1,7 +1,7 @@
 using System;
-using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Serilog.Sinks.Logz.Io;
 
 namespace Serilog.Sinks.Http.LogzIo.Tests
 {
@@ -58,15 +58,7 @@ namespace Serilog.Sinks.Http.LogzIo.Tests
                 Type = typeof(Sample)
             };
 
-            var serializerOptions = new JsonSerializerOptions
-            {
-                IgnoreNullValues = true,
-                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-            };
-
-            serializerOptions.Converters.Add(new LogzIoTypeConverter());
-
-            var result = JsonSerializer.Serialize(sample, serializerOptions);
+            var result = LogzIoSerializer.Instance.Serialize(sample);
             Console.WriteLine(result);
         }
 

@@ -1,14 +1,32 @@
 # A Serilog sink sending log events over HTTP to logz.io
 
-There are two implementations which can be used. See:
-
-- https://github.com/mantasaudickas/serilog-sinks-logz-io/blob/master/src/Serilog.Sinks.Http.LogzIo/README.md
-- https://github.com/mantasaudickas/serilog-sinks-logz-io/tree/master/src/Serilog.Sinks.Logz.Io/README.md
-
 Even though Serilog.Sinks.Logz.Io was original implementation I would strongly recommend to use Serilog.Sinks.Http.LogzIo.
 It uses a buffered file before sending to logz.io, which means that log entries won't be lost in case of connectivity issues
 and will be resend when connection is restored.
 
+# Available Packages
+## Serilog.Sinks.Logz.Io
+
+[![NuGet Version](http://img.shields.io/nuget/v/Serilog.Sinks.Logz.Io.svg?style=flat)](https://www.nuget.org/packages/Serilog.Sinks.Logz.Io/) 
+[![NuGet](https://img.shields.io/nuget/dt/Serilog.Sinks.Logz.Io.svg)](https://www.nuget.org/packages/Serilog.Sinks.Logz.Io/)
+[![Documentation](https://img.shields.io/badge/docs-wiki-yellow.svg)](https://github.com/serilog/serilog/wiki)
+[![Join the chat at https://gitter.im/serilog/serilog](https://img.shields.io/gitter/room/serilog/serilog.svg)](https://gitter.im/serilog/serilog)
+[![Help](https://img.shields.io/badge/stackoverflow-serilog-orange.svg)](http://stackoverflow.com/questions/tagged/serilog)
+
+__Package__ - [Serilog.Sinks.Logz.Io](https://www.nuget.org/packages/Serilog.Sinks.Logz.Io)
+| __Platforms__ - .NET 4.6.1, .NET Standard 2.0, NET 5.0
+
+### Installation
+
+If you want to include the HTTP sink in your project, you can [install it directly from NuGet](https://www.nuget.org/packages/Serilog.Sinks.Logz.Io/).
+
+To install the sink, run the following command in the Package Manager Console:
+
+```
+PM> Install-Package Serilog.Sinks.Logz.Io
+```
+
+## Serilog.Sinks.Http.LogzIo
 
 [![NuGet Version](http://img.shields.io/nuget/v/Serilog.Sinks.Http.LogzIo.svg?style=flat)](https://www.nuget.org/packages/Serilog.Sinks.Http.LogzIo/) 
 [![NuGet](https://img.shields.io/nuget/dt/Serilog.Sinks.Http.LogzIo.svg)](https://www.nuget.org/packages/Serilog.Sinks.Http.LogzIo/)
@@ -17,9 +35,18 @@ and will be resend when connection is restored.
 [![Help](https://img.shields.io/badge/stackoverflow-serilog-orange.svg)](http://stackoverflow.com/questions/tagged/serilog)
 
 __Package__ - [Serilog.Sinks.Http.LogzIo](https://www.nuget.org/packages/Serilog.Sinks.Http.LogzIo)
-| __Platforms__ - .NET 4.6.1, .NET Standard 2.0
+| __Platforms__ - .NET 4.6.1, .NET Standard 2.0, NET 5.0
 
-## Super simple to use
+### Installation
+
+If you want to include the HTTP sink in your project, you can [install it directly from NuGet](https://www.nuget.org/packages/Serilog.Sinks.Logz.Io/).
+
+To install the sink, run the following command in the Package Manager Console:
+
+```
+PM> Install-Package Serilog.Sinks.Http.LogzIo
+```
+# Usage 
 
 In the following example, the sink will POST log events to `https://listener-eu.logz.io:8071/?type=app&token=<token>` over HTTP. We configure the sink using **[named arguments](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/named-and-optional-arguments#named-arguments) instead of positional** because historically we've seen that most breaking changes where the result of a new parameter describing a new feature. Using named arguments means that you more often than not can migrate to new major versions without any changes to your code.
 
@@ -28,7 +55,7 @@ Used in conjunction with [Serilog.Settings.Configuration](https://github.com/ser
 ```json
 {
   "Serilog": {
-    "MinimumLevel": "Verbose",
+    "MinimumLevel": "Warning",
     "WriteTo": [
       {
         "Name": "LogzIoDurableHttp",
@@ -43,7 +70,13 @@ Used in conjunction with [Serilog.Settings.Configuration](https://github.com/ser
 
 The sink will be configured as durable, i.e. log events are persisted on disk before being sent over the network, thus protected against data loss after a system or process restart. For more information please read the [wiki](https://github.com/FantasticFiasco/serilog-sinks-http/wiki).
 
+> NOTE: under the hood library uses DurableHttpUsingTimeRolledBuffers extension method to configure durable HTTP sink.
+> 
+> See: [DurableHttpUsingTimeRolledBuffers](https://github.com/FantasticFiasco/serilog-sinks-http/blob/v7.2.0/src/Serilog.Sinks.Http/LoggerSinkConfigurationExtensions.cs#L297)
+
 ## More advanced examples
+
+> NOTE: in example bellow only `requestUri` is required. All other properties represents default values.
 
 ```json
 {
@@ -60,9 +93,13 @@ The sink will be configured as durable, i.e. log events are persisted on disk be
         "Name": "LogzIoDurableHttp",
         "Args": {
           "requestUri": "https://listener-eu.logz.io:8071/?type=app&token=<token>",
-          "bufferPathFormat": "C:/Temp/logzio/buffer-{Hour}.json",
+          "bufferPathFormat": "Buffer-{Hour}.json",
           "bufferFileSizeLimitBytes": "104857600",
-          "batchPostingLimit": 100,
+          "bufferFileShared": false,
+          "retainedBufferFileCountLimit": 31,
+          "batchPostingLimit": 1000,
+          "period": null,
+          "restrictedToMinimumLevel": "Minimum",
           "logzioTextFormatterOptions": {
             "BoostProperties": true,
             "LowercaseLevel": true,
@@ -98,12 +135,123 @@ In the example above logzIo formatter options are default, there is no need to s
         .MinimumLevel.Verbose();
 ```
 
-## Install via NuGet
+# Logs without buffered file
 
-If you want to include the HTTP sink in your project, you can [install it directly from NuGet](https://www.nuget.org/packages/Serilog.Sinks.Http.LogzIo/).
+NOTE: it is strongly recommended to use durable logger. It is much more robust and tollerates various network issues thus your logs won't be lost.
 
-To install the sink, run the following command in the Package Manager Console:
+In the following example, the sink will POST log events to https://listener.logz.io over HTTPS.
 
+```csharp
+ILogger log = new LoggerConfiguration()
+  .MinimumLevel.Verbose()
+  .WriteTo.LogzIo("<logzio token>", "<log type>", useHttps: true)
+  .CreateLogger();
+
+log.Information("Logging {@Heartbeat} from {Computer}", heartbeat, computer);
 ```
-PM> Install-Package Serilog.Sinks.Http.LogzIo
+
+More advanced configuration is also available:
+
+```csharp
+ILogger log = new LoggerConfiguration()
+  .MinimumLevel.Verbose()
+  .WriteTo.LogzIo("<logzio token>", "<log type>",
+    new LogzioOptions 
+    { 
+        UseHttps = true, 
+        RestrictedToMinimumLevel = LogEventLevel.Debug,
+        Period = TimeSpan.FromSeconds(15),
+        BatchPostingLimit = 50
+    })
+  .CreateLogger();
+```
+
+Alternatively configuration can be done within your `appsettings.json` file:
+
+```json
+{
+  "Serilog": {
+    "MinimumLevel": {
+      "Default": "Verbose"
+    },
+    "WriteTo": [
+      {
+        "Name": "LogzIo",
+        "Args": {
+          "authToken": "<logzio token>",
+          "type": "<log type>",
+          "dataCenterSubDomain": "listener",
+          "useHttps": true,
+          "batchPostingLimit": 5000,
+          "period": "00:00:02",
+          "restrictedToMinimumLevel": "Debug",
+          "lowercaseLevel": false,
+          "environment": "",
+          "serviceName": ""
+        }
+      }
+    ]
+  }
+}
+```
+
+## Elastic Common Schema support
+
+See for more details: https://www.elastic.co/guide/en/ecs/current/ecs-reference.html
+
+```csharp
+ILogger log = new LoggerConfiguration()
+  .MinimumLevel.Verbose()
+  .WriteTo.LogzIo(new LogzioEcsOptions
+        {
+            Type = "<log type>",
+            AuthToken = "<logzio token>",
+            DataCenter = new LogzioDataCenter
+            {
+                SubDomain = "listener",
+                Port = 8701,
+                UseHttps = true
+            }
+        },
+        batchPostingLimit: 50,
+        period: TimeSpan.FromSeconds(15),
+        restrictedToMinimumLevel: LogEventLevel.Debug
+    )
+  .CreateLogger();
+```
+
+Alternatively configuration can be done within your `appsettings.json` file, please note CustomEcsTextFormatterConfiguration setup is optional:
+
+```json
+{
+  "Serilog": {
+    "Using": [
+      "Serilog.Sinks.Console",
+      "Serilog.Sinks.Logz.Io"
+    ],
+    "MinimumLevel": {
+      "Default": "Information",
+      "Override": {
+        "Microsoft": "Information",
+        "System": "Warning"
+      }
+    },
+    "WriteTo": [
+      { "Name": "Console" },
+      {
+        "Name": "LogzIoEcs",
+        "Args": {
+          "options": {
+            "type": "<log type>",
+            "authToken": "<logzio token>"
+          },
+          "batchPostingLimit": 30,
+          "period": "00:00:02",
+          "restrictedToMinimumLevel": "Debug",
+          "formatterConfiguration": "Serilog.Sinks.Logz.Io.AspNetCoreApi.Logging.CustomEcsTextFormatterConfiguration, Serilog.Sinks.Logz.Io.AspNetCoreApi"
+        }
+      }
+    ]
+  }
+}
 ```

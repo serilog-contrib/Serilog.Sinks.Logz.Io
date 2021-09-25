@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Microsoft.Extensions.Configuration;
 using Serilog.Events;
 
@@ -36,7 +37,7 @@ namespace Serilog.Sinks.Logz.Io.Console
             return new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                .AddCommandLine(args ?? new string[0])
+                .AddCommandLine(args ?? Array.Empty<string>())
                 .Build();
         }
 
