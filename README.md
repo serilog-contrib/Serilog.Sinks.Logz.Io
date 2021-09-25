@@ -73,6 +73,8 @@ The sink will be configured as durable, i.e. log events are persisted on disk be
 > NOTE: under the hood library uses DurableHttpUsingTimeRolledBuffers extension method to configure durable HTTP sink.
 > 
 > See: [DurableHttpUsingTimeRolledBuffers](https://github.com/FantasticFiasco/serilog-sinks-http/blob/v7.2.0/src/Serilog.Sinks.Http/LoggerSinkConfigurationExtensions.cs#L297)
+>
+> Wiki: [Durable time rolled HTTP sink](https://github.com/FantasticFiasco/serilog-sinks-http/wiki/Durable-time-rolled-HTTP-sink)
 
 ## More advanced examples
 
