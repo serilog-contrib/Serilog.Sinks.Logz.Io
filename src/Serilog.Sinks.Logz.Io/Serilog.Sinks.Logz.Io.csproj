@@ -15,8 +15,8 @@
         <Authors>Mantas Audickas</Authors>
         <Company>mentalist.dev</Company>
         <Description>Serilog event sink that sends logs to Logz.io.</Description>
-        <PackageProjectUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/mantasaudickas/serilog-sinks-logz-io</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/serilog-contrib/Serilog.Sinks.Http.LogzIo</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/serilog-contrib/Serilog.Sinks.Http.LogzIo</RepositoryUrl>
         <PackageTags>Serilog LogzIo</PackageTags>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <PackageIcon>icon.png</PackageIcon>
