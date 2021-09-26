@@ -28,24 +28,9 @@ PM> Install-Package Serilog.Sinks.Logz.Io
 
 ## Serilog.Sinks.Http.LogzIo
 
-[![NuGet Version](http://img.shields.io/nuget/v/Serilog.Sinks.Http.LogzIo.svg?style=flat)](https://www.nuget.org/packages/Serilog.Sinks.Http.LogzIo/) 
-[![NuGet](https://img.shields.io/nuget/dt/Serilog.Sinks.Http.LogzIo.svg)](https://www.nuget.org/packages/Serilog.Sinks.Http.LogzIo/)
-[![Documentation](https://img.shields.io/badge/docs-wiki-yellow.svg)](https://github.com/serilog/serilog/wiki)
-[![Join the chat at https://gitter.im/serilog/serilog](https://img.shields.io/gitter/room/serilog/serilog.svg)](https://gitter.im/serilog/serilog)
-[![Help](https://img.shields.io/badge/stackoverflow-serilog-orange.svg)](http://stackoverflow.com/questions/tagged/serilog)
+This package has been deprecated as it is legacy and is no longer maintained.
+Please update to Serilog.Sinks.Logz.Io. Latest version contains exact the same functionality and extension methods to configure loggers.
 
-__Package__ - [Serilog.Sinks.Http.LogzIo](https://www.nuget.org/packages/Serilog.Sinks.Http.LogzIo)
-| __Platforms__ - .NET 4.6.1, .NET Standard 2.0, NET 5.0
-
-### Installation
-
-If you want to include the HTTP sink in your project, you can [install it directly from NuGet](https://www.nuget.org/packages/Serilog.Sinks.Logz.Io/).
-
-To install the sink, run the following command in the Package Manager Console:
-
-```
-PM> Install-Package Serilog.Sinks.Http.LogzIo
-```
 # Usage 
 
 In the following example, the sink will POST log events to `https://listener-eu.logz.io:8071/?type=app&token=<token>` over HTTP. We configure the sink using **[named arguments](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/named-and-optional-arguments#named-arguments) instead of positional** because historically we've seen that most breaking changes where the result of a new parameter describing a new feature. Using named arguments means that you more often than not can migrate to new major versions without any changes to your code.
