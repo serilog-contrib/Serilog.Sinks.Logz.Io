@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Serilog.Sinks.Http.LogzIo\Serilog.Sinks.Http.LogzIo.csproj" />
+    <ProjectReference Include="..\..\src\Serilog.Sinks.Logz.Io\Serilog.Sinks.Logz.Io.csproj" />
   </ItemGroup>
 
 </Project>

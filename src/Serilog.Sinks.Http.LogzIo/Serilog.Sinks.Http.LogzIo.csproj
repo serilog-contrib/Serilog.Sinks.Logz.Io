@@ -11,7 +11,7 @@
     
     <PropertyGroup>
         <PackageId>Serilog.Sinks.Http.LogzIo</PackageId>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <Authors>Mantas Audickas</Authors>
         <Company>mentalist.dev</Company>
         <Description>Serilog event sink that sends logs to Logz.io.</Description>
@@ -39,24 +39,24 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="..\Serilog.Sinks.Logz.Io\Buffered\DurableSinkConfigurationExtensions.cs" Link="DurableSinkConfigurationExtensions.cs" />
-        <Compile Include="..\Serilog.Sinks.Logz.Io\Buffered\LogzIoBatchFormatter.cs" Link="LogzIoBatchFormatter.cs" />
-        <Compile Include="..\Serilog.Sinks.Logz.Io\Buffered\LogzIoTextFormatter.cs" Link="LogzIoTextFormatter.cs" />
-        <Compile Include="..\Serilog.Sinks.Logz.Io\Buffered\LogzioTextFormatterOptions.cs" Link="LogzioTextFormatterOptions.cs" />
-        <Compile Include="..\Serilog.Sinks.Logz.Io\Client\HttpClientWrapper.cs" Link="HttpClientWrapper.cs" />
-        <Compile Include="..\Serilog.Sinks.Logz.Io\Client\IHttpClient.cs" Link="IHttpClient.cs" />
-        <Compile Include="..\Serilog.Sinks.Logz.Io\LogzioEcsOptions.cs" Link="LogzioEcsOptions.cs" />
-        <Compile Include="..\Serilog.Sinks.Logz.Io\LogzioEcsSink.cs" Link="LogzioEcsSink.cs" />
-        <Compile Include="..\Serilog.Sinks.Logz.Io\LogzioOptions.cs" Link="LogzioOptions.cs" />
-        <Compile Include="..\Serilog.Sinks.Logz.Io\LogzIoSerializer.cs" Link="LogzIoSerializer.cs" />
-        <Compile Include="..\Serilog.Sinks.Logz.Io\LogzioSink.cs" Link="LogzioSink.cs" />
-        <Compile Include="..\Serilog.Sinks.Logz.Io\LogzioSinkConfigurationExtensions.cs" Link="LogzioSinkConfigurationExtensions.cs" />
-        <Compile Include="..\Serilog.Sinks.Logz.Io\LogzIoUrl.cs" Link="LogzIoUrl.cs" />
+      <Compile Include="..\Serilog.Sinks.Logz.Io\Client\HttpClientWrapper.cs" Link="HttpClientWrapper.cs" />
+      <Compile Include="..\Serilog.Sinks.Logz.Io\Client\IHttpClient.cs" Link="IHttpClient.cs" />
+      <Compile Include="..\Serilog.Sinks.Logz.Io\DurableSinkConfigurationExtensions.cs" Link="DurableSinkConfigurationExtensions.cs" />
+      <Compile Include="..\Serilog.Sinks.Logz.Io\LogzIoBatchFormatter.cs" Link="LogzIoBatchFormatter.cs" />
+      <Compile Include="..\Serilog.Sinks.Logz.Io\LogzioEcsOptions.cs" Link="LogzioEcsOptions.cs" />
+      <Compile Include="..\Serilog.Sinks.Logz.Io\LogzioEcsSink.cs" Link="LogzioEcsSink.cs" />
+      <Compile Include="..\Serilog.Sinks.Logz.Io\LogzioOptions.cs" Link="LogzioOptions.cs" />
+      <Compile Include="..\Serilog.Sinks.Logz.Io\LogzIoSerializer.cs" Link="LogzIoSerializer.cs" />
+      <Compile Include="..\Serilog.Sinks.Logz.Io\LogzioSink.cs" Link="LogzioSink.cs" />
+      <Compile Include="..\Serilog.Sinks.Logz.Io\LogzioSinkConfigurationExtensions.cs" Link="LogzioSinkConfigurationExtensions.cs" />
+      <Compile Include="..\Serilog.Sinks.Logz.Io\LogzIoTextFormatter.cs" Link="LogzIoTextFormatter.cs" />
+      <Compile Include="..\Serilog.Sinks.Logz.Io\LogzIoTextFormatterFieldNaming.cs" Link="LogzIoTextFormatterFieldNaming.cs" />
+      <Compile Include="..\Serilog.Sinks.Logz.Io\LogzioTextFormatterOptions.cs" Link="LogzioTextFormatterOptions.cs" />
+      <Compile Include="..\Serilog.Sinks.Logz.Io\LogzIoUrl.cs" Link="LogzIoUrl.cs" />
     </ItemGroup>
 
     <ItemGroup>
         <None Include="..\..\icon.png" Pack="true" Visible="false" PackagePath="" />
-        <None Include="..\..\README.md" Link="README.md" />
     </ItemGroup>
 
     <ItemGroup>

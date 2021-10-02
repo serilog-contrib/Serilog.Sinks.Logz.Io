@@ -114,7 +114,7 @@ namespace Serilog.Sinks.Logz.Io.Tests
 
             var dataDinamic = JObject.Parse(data);
             dataDinamic["properties.PropStr1"].Should().BeNullOrEmpty();
-            
+
             ValidateArray(dataDinamic["properties.PropArr1"]);
             ValidateArray(dataDinamic["properties.PropArr2"]);
             ValidateArray(dataDinamic["properties.PropArr3"]);
@@ -128,9 +128,9 @@ namespace Serilog.Sinks.Logz.Io.Tests
         private static void ValidateArray(JToken arr1)
         {
             arr1.Should().NotBeNull();
-            arr1.Should().BeOfType<JObject>();
-            arr1.Last.Should().BeOfType<JProperty>();
-            arr1.Last.Last.Should().BeOfType<JArray>();
+            arr1.Should().BeOfType<JArray>();
+//            arr1.Last.Should().BeOfType<JProperty>();
+//            arr1.Last.Last.Should().BeOfType<JArray>();
         }
 
         [Fact]

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using Serilog.Sinks.Logz.Io.Converters;
 
 namespace Serilog.Sinks.Logz.Io
 {
@@ -13,22 +14,11 @@ namespace Serilog.Sinks.Logz.Io
     {
         public static ILogzIoSerializer Instance { get; set; } = new LogzIoSerializer(LogzIoTextFormatterFieldNaming.CamelCase);
 
-        public static JsonSerializerSettings SerializerOptions { get; set; }
+        public JsonSerializerSettings SerializerSettings { get; private set; }
 
-        static LogzIoSerializer()
+        public LogzIoSerializer(LogzIoTextFormatterFieldNaming fieldNaming, bool includeMulticastDelegateConverter = true)
         {
-            SerializerOptions = new JsonSerializerSettings
-            {
-                NullValueHandling = NullValueHandling.Ignore,
-                PreserveReferencesHandling = PreserveReferencesHandling.All
-            };
-
-            SerializerOptions.Converters.Add(new StringEnumConverter(new CamelCaseNamingStrategy()));
-        }
-        
-        public LogzIoSerializer(LogzIoTextFormatterFieldNaming fieldNaming)
-        {
-            SerializerOptions = new JsonSerializerSettings
+            SerializerSettings = new JsonSerializerSettings
             {
                 NullValueHandling = NullValueHandling.Ignore,
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore
@@ -38,12 +28,23 @@ namespace Serilog.Sinks.Logz.Io
                 ? new CamelCaseNamingStrategy()
                 : new DefaultNamingStrategy();
 
-            SerializerOptions.Converters.Add(new StringEnumConverter(namingStrategy));
+            SerializerSettings.Converters.Add(new StringEnumConverter(namingStrategy));
+
+            if (includeMulticastDelegateConverter)
+            {
+                SerializerSettings.Converters.Add(new MulticastDelegateJsonConverter());
+            }
+        }
+
+        public ILogzIoSerializer WithSerializerSettings(JsonSerializerSettings settings)
+        {
+            SerializerSettings = settings;
+            return this;
         }
 
         public string Serialize<T>(T value)
         {
-            return JsonConvert.SerializeObject(value, Newtonsoft.Json.Formatting.None, SerializerOptions);
+            return JsonConvert.SerializeObject(value, Newtonsoft.Json.Formatting.None, SerializerSettings);
         }
     }
 }

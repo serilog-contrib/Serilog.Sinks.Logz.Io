@@ -55,11 +55,19 @@ Used in conjunction with [Serilog.Settings.Configuration](https://github.com/ser
 
 The sink will be configured as durable, i.e. log events are persisted on disk before being sent over the network, thus protected against data loss after a system or process restart. For more information please read the [wiki](https://github.com/FantasticFiasco/serilog-sinks-http/wiki).
 
-> NOTE: under the hood library uses DurableHttpUsingTimeRolledBuffers extension method to configure durable HTTP sink.
+> NOTE1: under the hood library uses DurableHttpUsingTimeRolledBuffers extension method to configure durable HTTP sink.
 > 
 > See: [DurableHttpUsingTimeRolledBuffers](https://github.com/FantasticFiasco/serilog-sinks-http/blob/v7.2.0/src/Serilog.Sinks.Http/LoggerSinkConfigurationExtensions.cs#L297)
 >
 > Wiki: [Durable time rolled HTTP sink](https://github.com/FantasticFiasco/serilog-sinks-http/wiki/Durable-time-rolled-HTTP-sink)
+
+> NOTE2: there is a special handling for MulticastDelegate type (basically objects containing Func or Action properties). 
+>
+> Delegate serialization usually involves a lot of unecessary details so it was reduced a lot.
+>
+> In order to disable this behavior you can change serializer settings: LogzIoSerializer.Instance = new LogzIoSerializer(LogzIoTextFormatterFieldNaming.CamelCase, false);
+>
+> This place also can be used to change serialization options or set a custom serializer.
 
 ## More advanced examples
 
@@ -91,7 +99,8 @@ The sink will be configured as durable, i.e. log events are persisted on disk be
             "BoostProperties": true,
             "LowercaseLevel": true,
             "IncludeMessageTemplate": true,
-            "FieldNaming": "CamelCase"
+            "FieldNaming": "CamelCase",
+            "EventSizeLimitBytes": 261120
           }
         }
       }
@@ -116,8 +125,10 @@ In the example above logzIo formatter options are default, there is no need to s
             logzioTextFormatterOptions: new LogzioTextFormatterOptions
             {
                 BoostProperties = true,
+                LowercaseLevel = true,
                 IncludeMessageTemplate = true,
-                LowercaseLevel = true
+                FieldNaming = LogzIoTextFormatterFieldNaming.CamelCase,
+                EventSizeLimitBytes = 261120,
             })
         .MinimumLevel.Verbose();
 ```
