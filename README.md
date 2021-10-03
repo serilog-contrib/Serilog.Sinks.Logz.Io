@@ -55,19 +55,43 @@ Used in conjunction with [Serilog.Settings.Configuration](https://github.com/ser
 
 The sink will be configured as durable, i.e. log events are persisted on disk before being sent over the network, thus protected against data loss after a system or process restart. For more information please read the [wiki](https://github.com/FantasticFiasco/serilog-sinks-http/wiki).
 
-> NOTE1: under the hood library uses DurableHttpUsingTimeRolledBuffers extension method to configure durable HTTP sink.
-> 
-> See: [DurableHttpUsingTimeRolledBuffers](https://github.com/FantasticFiasco/serilog-sinks-http/blob/v7.2.0/src/Serilog.Sinks.Http/LoggerSinkConfigurationExtensions.cs#L297)
->
-> Wiki: [Durable time rolled HTTP sink](https://github.com/FantasticFiasco/serilog-sinks-http/wiki/Durable-time-rolled-HTTP-sink)
+## Internals
 
-> NOTE2: there is a special handling for MulticastDelegate type (basically objects containing Func or Action properties). 
->
-> Delegate serialization usually involves a lot of unecessary details so it was reduced a lot.
->
-> In order to disable this behavior you can change serializer settings: LogzIoSerializer.Instance = new LogzIoSerializer(LogzIoTextFormatterFieldNaming.CamelCase, false);
->
-> This place also can be used to change serialization options or set a custom serializer.
+Library depends on a fantastic Serilog.Sinks.Http package which allows to create buffered files and controls HTTP uploads.
+
+Here we are using DurableHttpUsingTimeRolledBuffers extension method to configure durable HTTP sink.
+
+See: [DurableHttpUsingTimeRolledBuffers](https://github.com/FantasticFiasco/serilog-sinks-http/blob/v7.2.0/src/Serilog.Sinks.Http/LoggerSinkConfigurationExtensions.cs#L297)
+
+Wiki: [Durable time rolled HTTP sink](https://github.com/FantasticFiasco/serilog-sinks-http/wiki/Durable-time-rolled-HTTP-sink)
+
+## Serializer
+
+Library is using Newtonsoft.Json package for serialization. However it is possible to change/configure serialization behavior using LogzIoSerializer.Instance property.
+This instance should be configured at application startup (best if it happens before Serilog configuration).
+
+Default behavior which is set automatically:
+```
+LogzIoSerializer.Instance = new LogzIoSerializer(LogzIoTextFormatterFieldNaming.CamelCase, false);
+```
+
+You can also set custom JsonSerializerSettings using following code:
+```
+LogzIoSerializer.Instance.WithSerializerSettings(customSetttings);
+```
+
+Of course you can override complete serialization logic by implementing ILogzIoSerializer interface and configuring your own implementation.
+
+## Multicast delegates
+
+Newtonsoft.JSON package which is used to serialize log entries is also able to serialize lamdbas, delegates and similar functional constructs which normally does not make sense to have in logs. It also might produce huge blobs with assembly information thus increasing log entry size to unacceptable sizes.
+
+In order to handle this issue MulticastDelegate type serialization is overriden using custom [JsonConverter](https://github.com/serilog-contrib/Serilog.Sinks.Logz.Io/blob/master/src/Serilog.Sinks.Logz.Io/Converters/MulticastDelegateJsonConverter.cs).
+
+If you still want to enable this behavior - at application startup you can configure package serializer using following code:
+```
+LogzIoSerializer.Instance = new LogzIoSerializer(LogzIoTextFormatterFieldNaming.CamelCase, false);
+```
 
 ## More advanced examples
 
