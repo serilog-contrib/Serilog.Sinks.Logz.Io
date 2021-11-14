@@ -14,7 +14,7 @@ and will be resend when connection is restored.
 [![Help](https://img.shields.io/badge/stackoverflow-serilog-orange.svg)](http://stackoverflow.com/questions/tagged/serilog)
 
 __Package__ - [Serilog.Sinks.Logz.Io](https://www.nuget.org/packages/Serilog.Sinks.Logz.Io)
-| __Platforms__ - .NET 4.6.1, .NET Standard 2.0, NET 5.0
+| __Platforms__ - NET 6.0, NET 5.0, .NET Standard 2.0, .NET 4.6.1
 
 ### Installation
 

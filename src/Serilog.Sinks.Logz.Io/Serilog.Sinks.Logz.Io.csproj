@@ -1,12 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <TargetFrameworks>net461;netstandard2.0;net5.0;net6.0</TargetFrameworks>
         <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>latest</LangVersion>
-        <TargetFrameworks>net461;netstandard2.0;net5.0</TargetFrameworks>
-        <Version>5.1.0</Version>
-        <AssemblyVersion>5.0.0.0</AssemblyVersion>
-        <FileVersion>5.0.0.0</FileVersion>
+        <Version>6.0.0</Version>
+        <AssemblyVersion>6.0.0.0</AssemblyVersion>
+        <FileVersion>6.0.0.0</FileVersion>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -20,7 +21,7 @@
         <PackageTags>Serilog LogzIo</PackageTags>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <PackageIcon>icon.png</PackageIcon>
-        <PackageReleaseNotes>* Switch to Newtonsoft.Json serializer</PackageReleaseNotes>
+        <PackageReleaseNotes>* NET6</PackageReleaseNotes>
     </PropertyGroup>
 
     <PropertyGroup>
