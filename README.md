@@ -1,9 +1,5 @@
 # A Serilog sink sending log events over HTTP to logz.io
 
-Even though Serilog.Sinks.Logz.Io was original implementation I would strongly recommend to use Serilog.Sinks.Http.LogzIo.
-It uses a buffered file before sending to logz.io, which means that log entries won't be lost in case of connectivity issues
-and will be resend when connection is restored.
-
 # Available Packages
 ## Serilog.Sinks.Logz.Io
 
