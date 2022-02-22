@@ -1,19 +1,17 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Serilog.Sinks.Logz.Io.AspNetCoreApi
 {
     public class Startup
     {
-        private readonly ILogger<Startup> _logger;
-
-        public Startup(IConfiguration configuration, ILogger<Startup> logger)
+        public Startup(IConfiguration configuration)
         {
-            _logger = logger;
             Configuration = configuration;
         }
 
@@ -22,24 +20,45 @@ namespace Serilog.Sinks.Logz.Io.AspNetCoreApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddControllersWithViews();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+            else
+            {
+                app.UseExceptionHandler("/Home/Error");
+            }
+            app.UseStaticFiles();
 
-            app.UseMvc();
+            app.UseRouting();
 
-            _logger.LogDebug("DEBUG ASP.NET Core message");
-            _logger.LogInformation("INFORMATION ASP.NET Core message");
-            _logger.LogWarning("WARNING ASP.NET Core message");
-            _logger.LogError("ERROR ASP.NET Core message");
-            _logger.LogCritical("FATAL ASP.NET Core message");
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+            });
+
+            logger.LogDebug("DEBUG ASP.NET Core message");
+            logger.LogInformation("INFORMATION ASP.NET Core message {CurrentTime}", DateTime.UtcNow);
+            logger.LogInformation("Current person {@Person}", new Person());
+            logger.LogWarning("WARNING ASP.NET Core message");
+            logger.LogError("ERROR ASP.NET Core message");
+            logger.LogCritical("FATAL ASP.NET Core message");
         }
+    }
+
+    public class Person
+    {
+        public string FirstName { get; set; } = "Mantas";
+        public int Age { get; set; } = 21;
     }
 }

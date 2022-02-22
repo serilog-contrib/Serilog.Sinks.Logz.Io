@@ -15,15 +15,14 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Serilog.Sinks.Logz.Io.Client
-{
-    internal class HttpClientWrapper : IHttpClient
-    {
-        private static readonly HttpClient Client = new HttpClient();
+namespace Serilog.Sinks.Logz.Io.Client;
 
-        public Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content)
-        {
-            return Client.PostAsync(requestUri, content);
-        }
+internal class HttpClientWrapper : IHttpClient
+{
+    private static readonly HttpClient Client = new();
+
+    public Task<HttpResponseMessage> PostAsync(string requestUri, HttpContent content)
+    {
+        return Client.PostAsync(requestUri, content);
     }
 }

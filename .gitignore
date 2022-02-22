@@ -3,3 +3,6 @@ bin/
 obj/
 .vscode/
 *.user
+*.DotSettings
+
+Buffer*
