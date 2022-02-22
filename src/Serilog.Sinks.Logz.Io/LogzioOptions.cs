@@ -87,5 +87,5 @@ public class LogzioOptions
     /// <summary>
     /// Gets or sets the failure callback.
     /// </summary>
-    public Action<Exception> FailureCallback { get; set; } = null;
+    public Action<Exception>? FailureCallback { get; set; } = null;
 }

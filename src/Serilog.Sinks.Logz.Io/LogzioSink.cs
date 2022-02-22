@@ -149,8 +149,8 @@ public sealed class LogzioSink : PeriodicBatchingSink
         }
     }
 
-    #endreg
-    
+    #endregion
+
     private string FormatPayload(IEnumerable<LogEvent> events)
     {
         var result = events
@@ -213,23 +213,22 @@ public sealed class LogzioSink : PeriodicBatchingSink
 
     private static object GetPropertyInternalValue(LogEventPropertyValue propertyValue)
     {
-        switch (propertyValue)
+        return propertyValue switch
         {
-            case ScalarValue sv: return GetInternalValue(sv.Value);
-            case SequenceValue sv: return sv.Elements.Select(GetPropertyInternalValue).ToArray();
-            case DictionaryValue dv: return dv.Elements.Select(kv => new { Key = kv.Key.Value, Value = GetPropertyInternalValue(kv.Value) }).ToDictionary(i => i.Key, i => i.Value);
-            case StructureValue sv: return sv.Properties.Select(kv => new { Key = kv.Name, Value = GetPropertyInternalValue(kv.Value) }).ToDictionary(i => i.Key, i => i.Value);
-        }
-        return propertyValue.ToString();
+            ScalarValue sv => GetInternalValue(sv.Value),
+            SequenceValue sv => sv.Elements.Select(GetPropertyInternalValue).ToArray(),
+            DictionaryValue dv => dv.Elements.Select(kv => new { Key = kv.Key.Value, Value = GetPropertyInternalValue(kv.Value) }).ToDictionary(i => i.Key, i => i.Value),
+            StructureValue sv => sv.Properties.Select(kv => new { Key = kv.Name, Value = GetPropertyInternalValue(kv.Value) }).ToDictionary(i => i.Key, i => i.Value),
+            _ => propertyValue.ToString()
+        };
     }
 
     private static object GetInternalValue(object value)
     {
-        switch (value)
+        return value switch
         {
-            case Enum e: return e.ToString();
-        }
-
-        return value;
+            Enum e => e.ToString(),
+            _ => value
+        };
     }
 }
