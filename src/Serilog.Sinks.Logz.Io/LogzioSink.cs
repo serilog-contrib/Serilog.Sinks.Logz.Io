@@ -134,7 +134,11 @@ namespace Serilog.Sinks.Logz.Io
                                  .ConfigureAwait(false);
 
                 if (!result.IsSuccessStatusCode)
-                    throw new LoggingFailedException($"Received failed result {result.StatusCode} when posting events to {_requestUrl}");
+                {
+                    var exception = new LoggingFailedException($"Received failed result {result.StatusCode} when posting events to {_requestUrl}");
+                    SelfLog.WriteLine($"{exception.Message} {exception.StackTrace}");
+                    _options.FailureCallback?.Invoke(exception);
+                }
             }
             catch (Exception ex)
             {
