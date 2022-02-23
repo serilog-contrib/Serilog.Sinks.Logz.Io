@@ -60,6 +60,7 @@ public sealed class LogzioSink : PeriodicBatchingSink
     /// <param name="dataCenterSubDomain">The logz.io datacenter specific sub-domain to send the logs to. options: "listener" (default, US), "listener-eu" (EU)</param>
     /// <param name="includeMessageTemplate">When true the message template is included in the logs</param>
     /// <param name="port">When specified overrides default port</param>
+    /// <param name="failureCallback">The failure callback.</param>
     public LogzioSink(IHttpClient client
         , string authToken
         , string type
@@ -70,6 +71,7 @@ public sealed class LogzioSink : PeriodicBatchingSink
         , string dataCenterSubDomain = "listener"
         , bool includeMessageTemplate = false
         , int? port = null
+        , Action<Exception>? failureCallback = null
     ) : this(client, authToken, type, new LogzioOptions
     {
         BatchPostingLimit = batchPostingLimit,
@@ -78,7 +80,8 @@ public sealed class LogzioSink : PeriodicBatchingSink
         BoostProperties = boostProperties,
         DataCenterSubDomain = dataCenterSubDomain,
         IncludeMessageTemplate = includeMessageTemplate,
-        Port = port
+        Port = port,
+        FailureCallback = failureCallback
     })
     {
     }
@@ -125,13 +128,25 @@ public sealed class LogzioSink : PeriodicBatchingSink
     {
         var payload = FormatPayload(events);
         var content = new StringContent(payload, Encoding.UTF8, "application/json");
-
-        var result = await _client
+        
+        try
+        {
+            var result = await _client
             .PostAsync(_requestUrl, content)
             .ConfigureAwait(false);
-
-        if (!result.IsSuccessStatusCode)
-            throw new LoggingFailedException($"Received failed result {result.StatusCode} when posting events to {_requestUrl}");
+            
+            if (!result.IsSuccessStatusCode)
+            {
+                var exception = new LoggingFailedException($"Received failed result {result.StatusCode} when posting events to {_requestUrl}");
+                SelfLog.WriteLine($"{exception.Message} {exception.StackTrace}");
+                _options.FailureCallback?.Invoke(exception);
+            }
+        }
+        catch (Exception ex)
+        {
+            SelfLog.WriteLine($"{ex.Message} {ex.StackTrace}");
+            _options.FailureCallback?.Invoke(ex);
+        }
     }
 
     #endregion
@@ -198,23 +213,22 @@ public sealed class LogzioSink : PeriodicBatchingSink
 
     private static object GetPropertyInternalValue(LogEventPropertyValue propertyValue)
     {
-        switch (propertyValue)
+        return propertyValue switch
         {
-            case ScalarValue sv: return GetInternalValue(sv.Value);
-            case SequenceValue sv: return sv.Elements.Select(GetPropertyInternalValue).ToArray();
-            case DictionaryValue dv: return dv.Elements.Select(kv => new { Key = kv.Key.Value, Value = GetPropertyInternalValue(kv.Value) }).ToDictionary(i => i.Key, i => i.Value);
-            case StructureValue sv: return sv.Properties.Select(kv => new { Key = kv.Name, Value = GetPropertyInternalValue(kv.Value) }).ToDictionary(i => i.Key, i => i.Value);
-        }
-        return propertyValue.ToString();
+            ScalarValue sv => GetInternalValue(sv.Value),
+            SequenceValue sv => sv.Elements.Select(GetPropertyInternalValue).ToArray(),
+            DictionaryValue dv => dv.Elements.Select(kv => new { Key = kv.Key.Value, Value = GetPropertyInternalValue(kv.Value) }).ToDictionary(i => i.Key, i => i.Value),
+            StructureValue sv => sv.Properties.Select(kv => new { Key = kv.Name, Value = GetPropertyInternalValue(kv.Value) }).ToDictionary(i => i.Key, i => i.Value),
+            _ => propertyValue.ToString()
+        };
     }
 
     private static object GetInternalValue(object value)
     {
-        switch (value)
+        return value switch
         {
-            case Enum e: return e.ToString();
-        }
-
-        return value;
+            Enum e => e.ToString(),
+            _ => value
+        };
     }
 }
