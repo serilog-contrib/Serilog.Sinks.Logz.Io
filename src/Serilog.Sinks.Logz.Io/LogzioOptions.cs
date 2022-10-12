@@ -39,41 +39,12 @@ public class LogzioOptions
     public LogEventLevel? RestrictedToMinimumLevel { get; set; }
 
     /// <summary>
-    /// Set to true to push all property names up to the event instead of using Properties.property_name
-    /// </summary>
-    public bool BoostProperties { get; set; } = false;
-
-    /// <summary>
-    /// Set to true to push lowercased log level
-    /// </summary>
-    public bool LowercaseLevel { get; set; } = false;
-        
-    /// <summary>
-    /// Set environment name, default is empty and not sent to server
-    /// </summary>
-    public string? Environment { get; set; } = string.Empty;
-        
-    /// <summary>
-    /// Set service name, default is empty and not sent to server
-    /// </summary>
-    public string? ServiceName { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Set to true to include message template
-    /// </summary>
-    public bool IncludeMessageTemplate { get; set; } = false;
-
-    /// <summary>
-    /// Specifies how to rename properties before sending to target
-    /// </summary>
-    public Dictionary<string, string> PropertyTransformationMap { get; set; } = new()
-    {
-        {"SourceContext", "logger"},
-        {"ThreadId", "thread"},
-    };
-
-    /// <summary>
     /// Gets or sets the failure callback.
     /// </summary>
     public Action<Exception>? FailureCallback { get; set; } = null;
+
+    /// <summary>
+    /// Specifies text formatting
+    /// </summary>
+    public LogzioTextFormatterOptions? TextFormatterOptions { get; set; }
 }

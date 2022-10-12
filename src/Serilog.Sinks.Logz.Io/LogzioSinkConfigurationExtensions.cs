@@ -42,8 +42,6 @@ public static class LogzioSinkConfigurationExtensions
     /// <param name="logEventsInBatchLimit">The maximum number of events to post in a single batch</param>
     /// <param name="period">The time to wait between checking for event batches</param>
     /// <param name="lowercaseLevel">Set to true to push log level as lowercase</param>
-    /// <param name="environment">The environment name, default is empty and not sent to server</param>
-    /// <param name="serviceName">The service name, default is empty and not sent to server</param>
     /// <param name="includeMessageTemplate">When true the message template is included in the logs</param>
     /// <param name="port">When specified overrides default port</param>
     /// <returns>Logger configuration, allowing configuration to continue.</returns>
@@ -58,26 +56,25 @@ public static class LogzioSinkConfigurationExtensions
         int? logEventsInBatchLimit = null,
         TimeSpan? period = null,
         bool lowercaseLevel = false,
-        string? environment = null,
-        string? serviceName = null,
         bool includeMessageTemplate = false,
         int? port = null)
     {
         return LogzIo(sinkConfiguration, authToken, type, new LogzioOptions
         {
-            BoostProperties = boostProperties,
             RestrictedToMinimumLevel = restrictedToMinimumLevel,
             LogEventsInBatchLimit = logEventsInBatchLimit,
             Period = period,
-            LowercaseLevel = lowercaseLevel,
-            Environment = environment,
-            ServiceName = serviceName,
-            IncludeMessageTemplate = includeMessageTemplate,
             DataCenter = new LogzioDataCenter
             {
                 SubDomain = dataCenterSubDomain,
                 Port = port,
                 UseHttps = useHttps
+            },
+            TextFormatterOptions = new LogzioTextFormatterOptions
+            {
+                BoostProperties = boostProperties,
+                LowercaseLevel = lowercaseLevel,
+                IncludeMessageTemplate = includeMessageTemplate
             }
         });
     }

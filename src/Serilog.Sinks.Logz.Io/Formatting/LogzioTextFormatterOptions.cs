@@ -20,7 +20,7 @@ public class LogzioTextFormatterOptions
     /// <summary>
     /// Set to true to push all property names up to the event instead of using Properties.property_name
     /// </summary>
-    public bool BoostProperties { get; set; } = true;
+    public bool BoostProperties { get; set; } = false;
 
     /// <summary>
     /// Set to true to push lowercased log level
@@ -40,7 +40,7 @@ public class LogzioTextFormatterOptions
     /// <summary>
     /// Specifies how to rename field names before sending to target
     /// </summary>
-    public Dictionary<string, string>? FieldNameTransformationMap { get; set; } = new()
+    public Dictionary<string, string>? PropertyTransformationMap { get; set; } = new()
     {
         {"SourceContext", "Logger"},
         {"ThreadId", "Thread"}

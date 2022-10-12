@@ -1,6 +1,6 @@
 @ECHO OFF
 
-set version=7.0.0
+set version=7.1.0
 set output=./packages
 
 dotnet restore .

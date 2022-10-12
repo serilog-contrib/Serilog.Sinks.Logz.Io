@@ -16,6 +16,7 @@ __Package__ - [Serilog.Sinks.Logz.Io](https://www.nuget.org/packages/Serilog.Sin
 
 v7 has breaking changes.
 
+- DEFAULT FIELD NAME FORMATTING SETTINGS MIGHT BE CHANGED DEPENDING ON YOUR CONFIGURATION, PLEASE DOUBLE CHECK
 - batchPostingLimit field renamed to logEventsInBatchLimit to match Serilog.Sinks.Http library
 - bufferPathFormat renamed to bufferBaseFileName
 - in addition rolling interval is now set in separate property: bufferRollingInterval

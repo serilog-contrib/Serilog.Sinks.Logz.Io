@@ -44,13 +44,11 @@ public class LogzioSinkTest
         var data = await httpData.Single().ReadAsStringAsync();
         data.Should().NotBeNullOrWhiteSpace();
         var dataDic = JsonConvert.DeserializeObject<Dictionary<string, string>>(data);
-        dataDic.Should()
-            .ContainKey(
-                "@timestamp"); //LogzIo Requered a @timestamp (Iso DateTime) to indicate the time of the event.
+        dataDic.Should().ContainKey("@timestamp"); //LogzIo Requered a @timestamp (Iso DateTime) to indicate the time of the event.
         dataDic.Should().ContainKey("message"); //LogzIo Requered a lowercase message string
         dataDic["@timestamp"].Should().NotBeNullOrWhiteSpace();
         dataDic["message"].Should().Be(logMsg);
-        dataDic["level"].Should().Be(LogEventLevel.Information.ToString());
+        dataDic["level"].Should().Be(LogEventLevel.Information.ToString().ToLower());
     }
 
     [Fact]
@@ -97,13 +95,11 @@ public class LogzioSinkTest
         data.Should().NotBeNullOrWhiteSpace();
 
         var dataDic = JsonConvert.DeserializeObject<Dictionary<string, object>>(data);
-        dataDic.Should()
-            .ContainKey(
-                "@timestamp"); //LogzIo Requered a @timestamp (Iso DateTime) to indicate the time of the event.
+        dataDic.Should().ContainKey("@timestamp"); //LogzIo Requered a @timestamp (Iso DateTime) to indicate the time of the event.
         dataDic.Should().ContainKey("message"); //LogzIo Requered a lowercase message string
         dataDic["@timestamp"].Should().NotBeNull();
         dataDic["message"].Should().Be(logMsg);
-        dataDic["level"].Should().Be(LogEventLevel.Warning.ToString());
+        dataDic["level"].Should().Be(LogEventLevel.Warning.ToString().ToLower());
 
         dataDic.Should().ContainKeys("properties.PropStr1", "properties.PropInt1", "properties.PropInt2",
             "properties.PropBool1", "properties.PropArr1", "properties.PropArr2",
@@ -149,8 +145,13 @@ public class LogzioSinkTest
         //Arrange
         var httpData = new List<HttpContent>();
 
+        var logzioOptions = new LogzioOptions
+        {
+            TextFormatterOptions = new LogzioTextFormatterOptions {BoostProperties = false}
+        };
+
         var sink = new PeriodicBatchingSink(
-            new LogzIoSink("testAuthCode", "testTyoe", new LogzioOptions {BoostProperties = false}, new GoodFakeHttpClient(httpData)),
+            new LogzIoSink("testAuthCode", "testTyoe", logzioOptions, new GoodFakeHttpClient(httpData)),
             LogzIoDefaults.CreateBatchingSinkOptions(100, TimeSpan.FromSeconds(1))
         );
 
@@ -182,8 +183,13 @@ public class LogzioSinkTest
         //Arrange
         var httpData = new List<HttpContent>();
 
+        var logzioOptions = new LogzioOptions
+        {
+            TextFormatterOptions = new LogzioTextFormatterOptions { BoostProperties = true }
+        };
+
         var sink = new PeriodicBatchingSink(
-            new LogzIoSink("testAuthCode", "testTyoe", new LogzioOptions { BoostProperties = true }, new GoodFakeHttpClient(httpData)),
+            new LogzIoSink("testAuthCode", "testTyoe", logzioOptions, new GoodFakeHttpClient(httpData)),
             LogzIoDefaults.CreateBatchingSinkOptions(100, TimeSpan.FromSeconds(1))
         );
 
@@ -205,8 +211,8 @@ public class LogzioSinkTest
         data.Should().NotBeNullOrWhiteSpace();
         var dataDic = JsonConvert.DeserializeObject<Dictionary<string, string>>(data);
 
-        dataDic["EnrichedProperty"].Should().Be("banana");
-        dataDic["MessageTemplateProperty"].Should().Be("pear");
+        dataDic["enrichedProperty"].Should().Be("banana");
+        dataDic["messageTemplateProperty"].Should().Be("pear");
     }
 
     [Fact]
@@ -215,8 +221,13 @@ public class LogzioSinkTest
         //Arrange
         var httpData = new List<HttpContent>();
 
+        var logzioOptions = new LogzioOptions
+        {
+            TextFormatterOptions = new LogzioTextFormatterOptions { IncludeMessageTemplate = true }
+        };
+
         var sink = new PeriodicBatchingSink(
-            new LogzIoSink("testAuthCode", "testTyoe", new LogzioOptions { IncludeMessageTemplate = true }, new GoodFakeHttpClient(httpData)),
+            new LogzIoSink("testAuthCode", "testTyoe", logzioOptions, new GoodFakeHttpClient(httpData)),
             LogzIoDefaults.CreateBatchingSinkOptions(100, TimeSpan.FromSeconds(1))
         );
 
