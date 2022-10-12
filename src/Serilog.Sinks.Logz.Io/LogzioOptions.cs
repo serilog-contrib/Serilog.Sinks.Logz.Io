@@ -19,12 +19,17 @@ namespace Serilog.Sinks.Logz.Io;
 public class LogzioOptions
 {
     /// <summary>
-    /// The maximum number of events to post in a single batch. The default is <see cref="LogzioSink.DefaultBatchPostingLimit"/>.
+    /// LogzIo Data center
     /// </summary>
-    public int? BatchPostingLimit { get; set; }
+    public LogzioDataCenter? DataCenter { get; set; }
 
     /// <summary>
-    /// The time to wait between checking for event batches. The default is <see cref="LogzioSink.DefaultPeriod"/>.
+    /// The maximum number of events to post in a single batch. The default is <see cref="LogzIoDefaults.DefaultBatchPostingLimit"/>.
+    /// </summary>
+    public int? LogEventsInBatchLimit { get; set; }
+
+    /// <summary>
+    /// The time to wait between checking for event batches. The default is <see cref="LogzIoDefaults.DefaultPeriod"/>.
     /// </summary>
     public TimeSpan? Period { get; set; }
 
@@ -32,11 +37,6 @@ public class LogzioOptions
     /// The minimum level for events passed through the sink. The default is <see cref="LogEventLevel.Verbose"/>.
     /// </summary>
     public LogEventLevel? RestrictedToMinimumLevel { get; set; }
-
-    /// <summary>
-    /// Use https
-    /// </summary>
-    public bool UseHttps { get; set; } = true;
 
     /// <summary>
     /// Set to true to push all property names up to the event instead of using Properties.property_name
@@ -59,18 +59,6 @@ public class LogzioOptions
     public string? ServiceName { get; set; } = string.Empty;
 
     /// <summary>
-    /// The data center specific endpoint sub domain to use, select one of the following
-    /// 1) listener (default) = US
-    /// 2) listener-eu = UE
-    /// </summary>
-    public string DataCenterSubDomain { get; set; } = "listener";
-
-    /// <summary>
-    /// Adds possibility to override port
-    /// </summary>
-    public int? Port { get; set; } = null;
-
-    /// <summary>
     /// Set to true to include message template
     /// </summary>
     public bool IncludeMessageTemplate { get; set; } = false;
@@ -78,7 +66,7 @@ public class LogzioOptions
     /// <summary>
     /// Specifies how to rename properties before sending to target
     /// </summary>
-    public Dictionary<string, string> PropertyTransformationMap { get; set; } = new Dictionary<string, string>
+    public Dictionary<string, string> PropertyTransformationMap { get; set; } = new()
     {
         {"SourceContext", "logger"},
         {"ThreadId", "thread"},

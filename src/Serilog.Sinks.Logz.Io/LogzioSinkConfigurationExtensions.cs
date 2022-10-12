@@ -13,10 +13,13 @@
 // limitations under the License.
 
 using Elastic.CommonSchema.Serilog;
+using Microsoft.Extensions.Configuration;
 using Serilog.Configuration;
 using Serilog.Events;
+using Serilog.Sinks.Http;
 using Serilog.Sinks.Logz.Io;
-using Serilog.Sinks.Logz.Io.Client;
+using Serilog.Sinks.Logz.Io.Sinks;
+using Serilog.Sinks.PeriodicBatching;
 
 // ReSharper disable once CheckNamespace
 namespace Serilog;
@@ -36,7 +39,7 @@ public static class LogzioSinkConfigurationExtensions
     /// <param name="boostProperties">When true, does not add 'properties' prefix.</param>
     /// <param name="dataCenterSubDomain">The logz.io datacenter specific sub-domain to send the logs to. options: "listener" (default, US), "listener-eu" (EU)</param>
     /// <param name="restrictedToMinimumLevel">Specifies minimal level for log events</param>
-    /// <param name="batchPostingLimit">The maximum number of events to post in a single batch</param>
+    /// <param name="logEventsInBatchLimit">The maximum number of events to post in a single batch</param>
     /// <param name="period">The time to wait between checking for event batches</param>
     /// <param name="lowercaseLevel">Set to true to push log level as lowercase</param>
     /// <param name="environment">The environment name, default is empty and not sent to server</param>
@@ -52,7 +55,7 @@ public static class LogzioSinkConfigurationExtensions
         bool boostProperties = false,
         string dataCenterSubDomain = "listener",
         LogEventLevel restrictedToMinimumLevel = LogEventLevel.Verbose,
-        int? batchPostingLimit = null,
+        int? logEventsInBatchLimit = null,
         TimeSpan? period = null,
         bool lowercaseLevel = false,
         string? environment = null,
@@ -62,17 +65,20 @@ public static class LogzioSinkConfigurationExtensions
     {
         return LogzIo(sinkConfiguration, authToken, type, new LogzioOptions
         {
-            UseHttps = useHttps,
             BoostProperties = boostProperties,
-            DataCenterSubDomain = dataCenterSubDomain,
             RestrictedToMinimumLevel = restrictedToMinimumLevel,
-            BatchPostingLimit = batchPostingLimit,
+            LogEventsInBatchLimit = logEventsInBatchLimit,
             Period = period,
             LowercaseLevel = lowercaseLevel,
             Environment = environment,
             ServiceName = serviceName,
             IncludeMessageTemplate = includeMessageTemplate,
-            Port = port
+            DataCenter = new LogzioDataCenter
+            {
+                SubDomain = dataCenterSubDomain,
+                Port = port,
+                UseHttps = useHttps
+            }
         });
     }
 
@@ -89,9 +95,14 @@ public static class LogzioSinkConfigurationExtensions
         if (sinkConfiguration == null)
             throw new ArgumentNullException(nameof(sinkConfiguration));
 
-        var client = new HttpClientWrapper();
-        var sink = new LogzioSink(client, authToken, type, options ?? new LogzioOptions());
-        var restrictedToMinimumLevel = options?.RestrictedToMinimumLevel ?? LogEventLevel.Verbose;
+        options ??= new LogzioOptions();
+
+        var sink = new PeriodicBatchingSink(
+            new LogzIoSink(authToken, type, options),
+            LogzIoDefaults.CreateBatchingSinkOptions(options.LogEventsInBatchLimit, options.Period)
+        );
+
+        var restrictedToMinimumLevel = options.RestrictedToMinimumLevel ?? LogEventLevel.Verbose;
 
         return sinkConfiguration.Sink(sink, restrictedToMinimumLevel);
     }
@@ -101,14 +112,14 @@ public static class LogzioSinkConfigurationExtensions
     /// </summary>
     /// <param name="sinkConfiguration">The logger configuration.</param>
     /// <param name="options">Logzio configuration options</param>
-    /// <param name="batchPostingLimit"></param>
+    /// <param name="logEventsInBatchLimit"></param>
     /// <param name="period"></param>
     /// <param name="restrictedToMinimumLevel"></param>
     /// <param name="formatterConfiguration"></param>
     /// <returns>Logger configuration, allowing configuration to continue.</returns>
     public static LoggerConfiguration LogzIoEcs(this LoggerSinkConfiguration sinkConfiguration
         , LogzioEcsOptions options
-        , int? batchPostingLimit = null
+        , int? logEventsInBatchLimit = null
         , TimeSpan? period = null
         , LogEventLevel restrictedToMinimumLevel = LogEventLevel.Warning
         , IEcsTextFormatterConfiguration? formatterConfiguration = null)
@@ -119,8 +130,83 @@ public static class LogzioSinkConfigurationExtensions
         if (options == null)
             throw new ArgumentNullException(nameof(options));
 
-        var sink = new LogzioEcsSink(options, batchPostingLimit, period, null, formatterConfiguration);
+        var sink = new PeriodicBatchingSink(
+            new LogzIoEcsSink(options, formatterConfiguration),
+            LogzIoDefaults.CreateBatchingSinkOptions(logEventsInBatchLimit, period)
+        );
 
         return sinkConfiguration.Sink(sink, restrictedToMinimumLevel);
+    }
+
+    public static LoggerConfiguration LogzIoDurableHttp(
+        this LoggerSinkConfiguration sinkConfiguration,
+        string requestUri,
+        string bufferBaseFileName = "Buffer",
+        BufferRollingInterval bufferRollingInterval = BufferRollingInterval.Day,
+        long? bufferFileSizeLimitBytes = null,
+        bool bufferFileShared = false,
+        int? retainedBufferFileCountLimit = 31,
+        long? logEventLimitBytes = null,
+        int? logEventsInBatchLimit = 1000,
+        long? batchSizeLimitBytes = null,
+        TimeSpan? period = null,
+        LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
+        IHttpClient? httpClient = null,
+        IConfiguration? configuration = null,
+        LogzioTextFormatterOptions? logzioTextFormatterOptions = null)
+    {
+        return sinkConfiguration.DurableHttpUsingTimeRolledBuffers(
+            requestUri
+            , bufferBaseFileName
+            , bufferRollingInterval
+            , bufferFileSizeLimitBytes
+            , bufferFileShared
+            , retainedBufferFileCountLimit
+            , logEventLimitBytes
+            , logEventsInBatchLimit
+            , batchSizeLimitBytes
+            , period
+            , new LogzIoTextFormatter(logzioTextFormatterOptions)
+            , new LogzIoBatchFormatter(renameRenderedMessageJsonNode: false)
+            , restrictedToMinimumLevel
+            , httpClient
+            , configuration
+        );
+    }
+
+    public static LoggerConfiguration LogzIoEcsDurableHttp(
+        this LoggerSinkConfiguration sinkConfiguration,
+        string requestUri,
+        string bufferBaseFileName = "Buffer",
+        BufferRollingInterval bufferRollingInterval = BufferRollingInterval.Day,
+        long? bufferFileSizeLimitBytes = null,
+        bool bufferFileShared = false,
+        int? retainedBufferFileCountLimit = 31,
+        long? logEventLimitBytes = null,
+        int? logEventsInBatchLimit = 1000,
+        long? batchSizeLimitBytes = null,
+        TimeSpan? period = null,
+        LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
+        IHttpClient? httpClient = null,
+        IConfiguration? configuration = null,
+        LogzioEcsTextFormatterOptions? logzioTextFormatterOptions = null)
+    {
+        return sinkConfiguration.DurableHttpUsingTimeRolledBuffers(
+            requestUri
+            , bufferBaseFileName
+            , bufferRollingInterval
+            , bufferFileSizeLimitBytes
+            , bufferFileShared
+            , retainedBufferFileCountLimit
+            , logEventLimitBytes
+            , logEventsInBatchLimit
+            , batchSizeLimitBytes
+            , period
+            , new LogzIoEcsTextFormatter(logzioTextFormatterOptions)
+            , new LogzIoBatchFormatter(renameRenderedMessageJsonNode: false)
+            , restrictedToMinimumLevel
+            , httpClient
+            , configuration
+        );
     }
 }

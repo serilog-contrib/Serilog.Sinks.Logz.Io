@@ -12,6 +12,45 @@
 __Package__ - [Serilog.Sinks.Logz.Io](https://www.nuget.org/packages/Serilog.Sinks.Logz.Io)
 | __Platforms__ - NET 6.0, NET 5.0, .NET Standard 2.0, .NET 4.6.1
 
+### Warning: breaking changes
+
+v7 has breaking changes.
+
+- batchPostingLimit field renamed to logEventsInBatchLimit to match Serilog.Sinks.Http library
+- bufferPathFormat renamed to bufferBaseFileName
+- in addition rolling interval is now set in separate property: bufferRollingInterval
+
+So now instead of doing:
+```
+    "bufferPathFormat": "Buffer-{Hour}.json",
+```
+
+need to change config file to:
+```
+    "bufferBaseFileName": "Buffer",
+    "bufferRollingInterval": "Hour",
+```
+
+- data center configuration is moved to a separate object
+
+So now instead of doing:
+```
+    "useHttps": true,
+    "dataCenterSubDomain": "listener",
+    "port": null
+```
+
+need to change config file to:
+```
+    "dataCenter": {
+        "useHttps": true,
+        "dataCenterSubDomain": "listener",
+        "port": null
+    }
+```
+
+For more information see: https://github.com/FantasticFiasco/serilog-sinks-http/releases/tag/v8.0.0
+
 ### Installation
 
 If you want to include the HTTP sink in your project, you can [install it directly from NuGet](https://www.nuget.org/packages/Serilog.Sinks.Logz.Io/).
@@ -108,11 +147,12 @@ LogzIoSerializer.Instance = new LogzIoSerializer(LogzIoTextFormatterFieldNaming.
         "Name": "LogzIoDurableHttp",
         "Args": {
           "requestUri": "https://listener-eu.logz.io:8071/?type=app&token=<token>",
-          "bufferPathFormat": "Buffer-{Hour}.json",
+          "bufferBaseFileName": "Buffer",
+          "bufferRollingInterval": "Day",
           "bufferFileSizeLimitBytes": "104857600",
           "bufferFileShared": false,
           "retainedBufferFileCountLimit": 31,
-          "batchPostingLimit": 1000,
+          "logEventsInBatchLimit": 1000,
           "period": null,
           "restrictedToMinimumLevel": "Minimum",
           "logzioTextFormatterOptions": {
@@ -176,10 +216,9 @@ ILogger log = new LoggerConfiguration()
   .WriteTo.LogzIo("<logzio token>", "<log type>",
     new LogzioOptions 
     { 
-        UseHttps = true, 
         RestrictedToMinimumLevel = LogEventLevel.Debug,
         Period = TimeSpan.FromSeconds(15),
-        BatchPostingLimit = 50
+        LogEventsInBatchLimit = 50
     })
   .CreateLogger();
 ```
@@ -199,8 +238,11 @@ Alternatively configuration can be done within your `appsettings.json` file:
           "authToken": "<logzio token>",
           "type": "<log type>",
           "dataCenterSubDomain": "listener",
-          "useHttps": true,
-          "batchPostingLimit": 5000,
+          "dataCenter": {
+              "subDomain": "listener",
+              "useHttps": true
+          },
+          "logEventsInBatchLimit": 5000,
           "period": "00:00:02",
           "restrictedToMinimumLevel": "Debug",
           "lowercaseLevel": false,
@@ -263,7 +305,7 @@ Alternatively configuration can be done within your `appsettings.json` file, ple
             "type": "<log type>",
             "authToken": "<logzio token>"
           },
-          "batchPostingLimit": 30,
+          "logEventsInBatchLimit": 30,
           "period": "00:00:02",
           "restrictedToMinimumLevel": "Debug",
           "formatterConfiguration": "Serilog.Sinks.Logz.Io.AspNetCoreApi.Logging.CustomEcsTextFormatterConfiguration, Serilog.Sinks.Logz.Io.AspNetCoreApi"

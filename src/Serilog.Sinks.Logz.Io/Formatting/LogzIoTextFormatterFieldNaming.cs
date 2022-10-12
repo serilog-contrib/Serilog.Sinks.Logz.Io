@@ -12,13 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// ReSharper disable once CheckNamespace
 namespace Serilog.Sinks.Logz.Io;
 
-public class LogzioEcsOptions
+public enum LogzIoTextFormatterFieldNaming
 {
-    public string Type { get; set; } = null!;
-
-    public string AuthToken { get; set; } = null!;
-
-    public LogzioDataCenter? DataCenter { get; set; }
+    CamelCase,
+    LowerCase
 }
