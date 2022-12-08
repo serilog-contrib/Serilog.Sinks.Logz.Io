@@ -61,7 +61,7 @@
 
     <ItemGroup>
         <PackageReference Include="Elastic.CommonSchema.Serilog" Version="1.5.3" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
         <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.3.0" />
         <PackageReference Include="Serilog.Sinks.Http" Version="7.2.0" />
     </ItemGroup>
