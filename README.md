@@ -10,7 +10,7 @@
 [![Help](https://img.shields.io/badge/stackoverflow-serilog-orange.svg)](http://stackoverflow.com/questions/tagged/serilog)
 
 __Package__ - [Serilog.Sinks.Logz.Io](https://www.nuget.org/packages/Serilog.Sinks.Logz.Io)
-| __Platforms__ - NET 6.0, .NET Standard 2.0, .NET 4.6.1
+| __Platforms__ - NET7.0, NET 6.0, .NET Standard 2.0, .NET 4.6.1
 
 ### Warning: breaking changes
 

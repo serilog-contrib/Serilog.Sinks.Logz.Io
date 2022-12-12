@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net461;netstandard2.0;net6.0</TargetFrameworks>
+        <TargetFrameworks>net461;netstandard2.0;net6.0;net7.0</TargetFrameworks>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <LangVersion>latest</LangVersion>
@@ -12,16 +12,17 @@
 
     <PropertyGroup>
         <PackageId>Serilog.Sinks.Logz.Io</PackageId>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <Authors>Mantas Audickas</Authors>
-        <Company>mentalist.dev</Company>
+        <Company>cosulting.dev</Company>
         <Description>Serilog event sink that sends logs to Logz.io.</Description>
-        <PackageProjectUrl>https://github.com/serilog-contrib/Serilog.Sinks.Http.LogzIo</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/serilog-contrib/Serilog.Sinks.Http.LogzIo</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/serilog-contrib/Serilog.Sinks.Logz.Io</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/serilog-contrib/Serilog.Sinks.Logz.Io</RepositoryUrl>
         <PackageTags>Serilog LogzIo</PackageTags>
         <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
         <PackageIcon>icon.png</PackageIcon>
-        <PackageReleaseNotes>* NET6</PackageReleaseNotes>
+        <PackageReleaseNotes>Upgrade dependencies</PackageReleaseNotes>
+	    <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -40,13 +41,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="..\..\icon.png" Pack="true" Visible="false" PackagePath="" />
-        <None Include="..\..\README.md" Link="README.md" />
+        <None Include="..\..\icon.png" Pack="true" Visible="false" PackagePath="\" />
+        <None Include="..\..\README.md" Pack="true" PackagePath="\" Link="README.md" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Elastic.CommonSchema.Serilog" Version="1.5.3" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
         <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="3.1.0" />
         <PackageReference Include="Serilog.Sinks.Http" Version="8.0.0" />
     </ItemGroup>
