@@ -15,7 +15,9 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using Serilog.Debugging;
 using Serilog.Sinks.Logz.Io.Converters;
+using ErrorEventArgs = Newtonsoft.Json.Serialization.ErrorEventArgs;
 
 namespace Serilog.Sinks.Logz.Io;
 
@@ -35,7 +37,8 @@ public class LogzIoSerializer: ILogzIoSerializer
         SerializerSettings = new JsonSerializerSettings
         {
             NullValueHandling = NullValueHandling.Ignore,
-            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            Error = OnJsonError,
         };
 
         NamingStrategy namingStrategy = fieldNaming == LogzIoTextFormatterFieldNaming.CamelCase
@@ -48,6 +51,27 @@ public class LogzIoSerializer: ILogzIoSerializer
         {
             SerializerSettings.Converters.Add(new MulticastDelegateJsonConverter());
         }
+    }
+
+    /// <summary>
+    ///     Handle errors serializing the JSON event and log to <see cref="SelfLog"/> for diagnostics.
+    ///     <br /><br />
+    ///     This is particularly useful if certain properties throw exceptions, such sa properties on the logged
+    ///     <see cref="Exception"/>. Instead of losing the entire log event, only the problematic properties are lost.
+    /// </summary>
+    /// <param name="sender">The JSON serializer.</param>
+    /// <param name="e">Description of JSON serialization error.</param>
+    private static void OnJsonError(object sender, ErrorEventArgs e)
+    {
+        SelfLog.WriteLine("Failed to serialize log event for path {0}, member {1}, object {2}",
+            e.ErrorContext.Path, e.ErrorContext.Member, e.CurrentObject?.GetType().FullName);
+
+        if (e.ErrorContext.Error is { } exception)
+        {
+            SelfLog.WriteLine($"{exception.Message} {exception.StackTrace}");
+        }
+
+        e.ErrorContext.Handled = true;
     }
 
     public ILogzIoSerializer WithSerializerSettings(JsonSerializerSettings settings)

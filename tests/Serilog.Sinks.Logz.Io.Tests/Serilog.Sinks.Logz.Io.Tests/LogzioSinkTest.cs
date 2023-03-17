@@ -250,4 +250,63 @@ public class LogzioSinkTest
 
         dataDic["messageTemplate"].Should().Be(logMsg);
     }
+
+    [Fact]
+    public async Task GivenExceptionWithPropertyThrowingException_ExcludesThrowingPropertyInJson()
+    {
+        //Arrange
+        var httpData = new List<HttpContent>();
+
+        var logzioOptions = new LogzioOptions
+        {
+            TextFormatterOptions = new LogzioTextFormatterOptions { IncludeMessageTemplate = true }
+        };
+
+        var sink = new PeriodicBatchingSink(
+            new LogzIoSink("testAuthCode", "testTyoe", logzioOptions, new GoodFakeHttpClient(httpData)),
+            LogzIoDefaults.CreateBatchingSinkOptions(100, TimeSpan.FromSeconds(1))
+        );
+
+        var log = new LoggerConfiguration()
+            .WriteTo.Sink(sink)
+            .CreateLogger();
+
+        //Act
+        try
+        {
+            throw new ExceptionWithThrowingProperty();
+        }
+        catch (Exception e)
+        {
+            log.Error(e, "Error message");
+        }
+
+        log.Information("Info message");
+        log.Dispose();
+
+        //Assert
+        var contentString = await httpData.Should().ContainSingle().Which.ReadAsStringAsync();
+        contentString.Should().NotBeNullOrWhiteSpace();
+
+        List<JObject> logEvents = contentString
+            .ReplaceLineEndings()
+            .Split("," + Environment.NewLine)
+            .Select(JObject.Parse)
+            .ToList();
+
+        logEvents.Should().HaveCount(2, because: "both info and error message should be logged");
+        logEvents.Should().ContainSingle(x => x["messageTemplate"].Value<string>() == "Info message");
+
+        var errorEvent = logEvents.Should().ContainSingle(x => x["messageTemplate"].Value<string>() == "Error message").Which;
+        var exceptionValue = errorEvent.Should().ContainKey("exception").WhoseValue.ToObject<JObject>();
+        exceptionValue.Should().ContainKey("Message").WhoseValue.Value<string>().Should().Be("Exception of type 'Serilog.Sinks.Logz.Io.Tests.LogzioSinkTest+ExceptionWithThrowingProperty' was thrown.");
+        exceptionValue.Should().ContainKey(nameof(ExceptionWithThrowingProperty.StringProperty)).WhoseValue.Value<string>().Should().Be("I'm OK.");
+        exceptionValue.Should().NotContainKey(nameof(ExceptionWithThrowingProperty.ThrowingProperty));
+    }
+
+    public class ExceptionWithThrowingProperty : Exception
+    {
+        public string StringProperty => "I'm OK.";
+        public string ThrowingProperty => throw new InvalidOperationException("ExceptionWithThrowingProperty.Throwing property throws to test JSON serialization.");
+    }
 }

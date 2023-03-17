@@ -37,11 +37,11 @@ public sealed class LogzIoSink : IBatchedLogEventSink
         if (_requestUrl == null || string.IsNullOrWhiteSpace(_requestUrl))
             return;
 
-        var payload = FormatPayload(batch);
-        var content = new StringContent(payload, Encoding.UTF8, "application/json");
-
         try
         {
+            var payload = FormatPayload(batch);
+            var content = new StringContent(payload, Encoding.UTF8, "application/json");
+
             var result = await _client
                 .PostAsync(_requestUrl, content)
                 .ConfigureAwait(false);
