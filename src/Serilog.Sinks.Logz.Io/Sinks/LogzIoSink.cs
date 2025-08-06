@@ -1,3 +1,4 @@
+using System.Net.Http;
 using System.Text;
 using Serilog.Debugging;
 using Serilog.Events;
