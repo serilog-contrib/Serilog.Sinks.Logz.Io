@@ -12,17 +12,17 @@ public class LogzIoEcsTextFormatterConfiguration: EcsTextFormatterConfiguration
     {
         options ??= new LogzioEcsTextFormatterOptions();
 
-        MapCustom((log, logEvent) =>
+
+        MapCustom = (doc, _) =>
         {
-            if (options.LowercaseLevel && log.Log != null && !string.IsNullOrWhiteSpace(log.Log.Level))
+            if (options.LowercaseLevel && doc.Log != null && !string.IsNullOrWhiteSpace(doc.Log.Level))
             {
-                log.Log.Level = log.Log.Level?.ToLower();
+                doc.Log.Level = doc.Log.Level?.ToLower();
             }
 
-            // logzio does not represent _metadata field in UI..
-            log.Labels = log.Metadata;
-            log.Metadata = null;
-            return log;
-        });
+            doc.Labels = doc.Labels;
+            doc.Metadata = null;
+            return doc;
+        };
     }
 }

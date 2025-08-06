@@ -13,7 +13,9 @@
 // limitations under the License.
 
 using System.Text;
+using Elastic.CommonSchema;
 using Elastic.CommonSchema.Serilog;
+
 using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Formatting;
@@ -22,18 +24,12 @@ using Serilog.Sinks.Logz.Io.Formatting;
 // ReSharper disable once CheckNamespace
 namespace Serilog.Sinks.Logz.Io;
 
-public class LogzIoEcsTextFormatter : ITextFormatter
+public class LogzIoEcsTextFormatter(LogzioEcsTextFormatterOptions? options) : ITextFormatter
 {
-    private readonly IEcsTextFormatterConfiguration _configuration;
+    private readonly IEcsTextFormatterConfiguration<EcsDocument> _configuration = new LogzIoEcsTextFormatterConfiguration(options);
 
     public LogzIoEcsTextFormatter(): this(null)
     {
-    }
-
-    // ReSharper disable once UnusedMember.Global
-    public LogzIoEcsTextFormatter(LogzioEcsTextFormatterOptions? options)
-    {
-        _configuration = new LogzIoEcsTextFormatterConfiguration(options);
     }
 
     public void Format(LogEvent logEvent, TextWriter output)
@@ -49,7 +45,7 @@ public class LogzIoEcsTextFormatter : ITextFormatter
         }
     }
 
-    private MemoryStream FormatToStream(LogEvent logEvent, IEcsTextFormatterConfiguration formatterConfiguration)
+    private MemoryStream FormatToStream(LogEvent logEvent, IEcsTextFormatterConfiguration<EcsDocument> formatterConfiguration)
     {
         var memoryStream = new MemoryStream();
 

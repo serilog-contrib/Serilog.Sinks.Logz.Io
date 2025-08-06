@@ -35,7 +35,7 @@ public class LogzioSinkTest
         //Act
         var logMsg = "This a Information Log Trace";
         log.Information(logMsg);
-        log.Dispose();
+        await log.DisposeAsync();
 
         //Assert
         httpData.Should().NotBeNullOrEmpty();

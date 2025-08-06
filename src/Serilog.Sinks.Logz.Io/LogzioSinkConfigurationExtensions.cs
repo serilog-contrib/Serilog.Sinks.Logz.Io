@@ -12,9 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using Elastic.CommonSchema;
 using Elastic.CommonSchema.Serilog;
+
 using Microsoft.Extensions.Configuration;
+
 using Serilog.Configuration;
+using Serilog.Core;
 using Serilog.Events;
 using Serilog.Sinks.Http;
 using Serilog.Sinks.Logz.Io;
@@ -37,7 +41,7 @@ public static class LogzioSinkConfigurationExtensions
     /// <param name="type">Your log type - it helps classify the logs you send.</param>
     /// <param name="useHttps">Specifies to use https (default is true)</param>
     /// <param name="boostProperties">When true, does not add 'properties' prefix.</param>
-    /// <param name="dataCenterSubDomain">The logz.io datacenter specific sub-domain to send the logs to. options: "listener" (default, US), "listener-eu" (EU)</param>
+    /// <param name="dataCenterSubDomain">The logz.io datacenter specific sub domain to send the logs to. options: "listener" (default, US), "listener-eu" (EU)</param>
     /// <param name="restrictedToMinimumLevel">Specifies minimal level for log events</param>
     /// <param name="logEventsInBatchLimit">The maximum number of events to post in a single batch</param>
     /// <param name="period">The time to wait between checking for event batches</param>
@@ -119,7 +123,7 @@ public static class LogzioSinkConfigurationExtensions
         , int? logEventsInBatchLimit = null
         , TimeSpan? period = null
         , LogEventLevel restrictedToMinimumLevel = LogEventLevel.Warning
-        , IEcsTextFormatterConfiguration? formatterConfiguration = null)
+        , IEcsTextFormatterConfiguration<EcsDocument>? formatterConfiguration = null)
     {
         if (sinkConfiguration == null)
             throw new ArgumentNullException(nameof(sinkConfiguration));
@@ -147,7 +151,9 @@ public static class LogzioSinkConfigurationExtensions
         int? logEventsInBatchLimit = 1000,
         long? batchSizeLimitBytes = null,
         TimeSpan? period = null,
+        bool flushOnClose = true,
         LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
+        LoggingLevelSwitch? levelSwitch = null,
         IHttpClient? httpClient = null,
         IConfiguration? configuration = null,
         LogzioTextFormatterOptions? logzioTextFormatterOptions = null)
@@ -163,9 +169,11 @@ public static class LogzioSinkConfigurationExtensions
             , logEventsInBatchLimit
             , batchSizeLimitBytes
             , period
+            , flushOnClose
             , new LogzIoTextFormatter(logzioTextFormatterOptions)
             , new LogzIoBatchFormatter(renameRenderedMessageJsonNode: false)
             , restrictedToMinimumLevel
+            , levelSwitch
             , httpClient
             , configuration
         );
@@ -183,7 +191,9 @@ public static class LogzioSinkConfigurationExtensions
         int? logEventsInBatchLimit = 1000,
         long? batchSizeLimitBytes = null,
         TimeSpan? period = null,
+        bool flushOnClose = true,
         LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
+        LoggingLevelSwitch? levelSwitch = null,
         IHttpClient? httpClient = null,
         IConfiguration? configuration = null,
         LogzioEcsTextFormatterOptions? logzioTextFormatterOptions = null)
@@ -199,9 +209,11 @@ public static class LogzioSinkConfigurationExtensions
             , logEventsInBatchLimit
             , batchSizeLimitBytes
             , period
+            , flushOnClose
             , new LogzIoEcsTextFormatter(logzioTextFormatterOptions)
             , new LogzIoBatchFormatter(renameRenderedMessageJsonNode: false)
             , restrictedToMinimumLevel
+            , levelSwitch
             , httpClient
             , configuration
         );

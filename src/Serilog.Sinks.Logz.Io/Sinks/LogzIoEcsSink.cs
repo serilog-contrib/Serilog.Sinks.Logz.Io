@@ -1,6 +1,8 @@
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Elastic.CommonSchema;
 using Elastic.CommonSchema.Serilog;
+
 using Serilog.Debugging;
 using Serilog.Events;
 using Serilog.Sinks.Logz.Io.Client;
@@ -11,10 +13,10 @@ namespace Serilog.Sinks.Logz.Io.Sinks;
 public sealed class LogzIoEcsSink : IBatchedLogEventSink
 {
     private readonly string? _requestUrl;
-    private readonly IEcsTextFormatterConfiguration _formatterConfiguration;
+    private readonly IEcsTextFormatterConfiguration<EcsDocument> _formatterConfiguration;
     private readonly IHttpClient _client;
 
-    public LogzIoEcsSink(LogzioEcsOptions? options, IEcsTextFormatterConfiguration? formatterConfiguration = null, IHttpClient? httpClient = null)
+    public LogzIoEcsSink(LogzioEcsOptions? options, IEcsTextFormatterConfiguration<EcsDocument>? formatterConfiguration = null, IHttpClient? httpClient = null)
     {
         options ??= new LogzioEcsOptions();
         _requestUrl = LogzIoDefaults.GetUrl(options.AuthToken, options.Type, options.DataCenter);
@@ -48,7 +50,7 @@ public sealed class LogzIoEcsSink : IBatchedLogEventSink
 
     public Task OnEmptyBatchAsync() => Task.CompletedTask;
 
-    private MemoryStream FormatToStream(IEnumerable<LogEvent> events, IEcsTextFormatterConfiguration formatterConfiguration)
+    private MemoryStream FormatToStream(IEnumerable<LogEvent> events, IEcsTextFormatterConfiguration<EcsDocument> formatterConfiguration)
     {
         var memoryStream = new MemoryStream();
 

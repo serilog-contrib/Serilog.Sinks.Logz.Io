@@ -17,15 +17,21 @@ internal static class LogEventExtensions
             {"@timestamp", loggingEvent.Timestamp.ToString("O")},
             {"message", loggingEvent.RenderMessage()},
             {options.LevelFieldName, level},
-            {options.ExceptionFieldName, loggingEvent.Exception}
+            {"traceId", loggingEvent.TraceId?.ToString() ?? ""},
+            {"spanId", loggingEvent.SpanId?.ToString() ?? ""},
         };
+
+        if (loggingEvent.Exception != null)
+        {
+            values[options.ExceptionFieldName] = loggingEvent.Exception;
+        }
 
         if (options.IncludeMessageTemplate)
         {
             values.Add("messageTemplate", loggingEvent.MessageTemplate.Text);
         }
 
-        if (loggingEvent.Properties != null)
+        if (loggingEvent.Properties != null!)
         {
             var propertyPrefix = options.BoostProperties ? "" : "properties.";
 

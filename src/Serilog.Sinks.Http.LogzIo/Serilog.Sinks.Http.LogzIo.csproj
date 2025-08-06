@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net461;netstandard2.0;net8.0</TargetFrameworks>
+		<TargetFrameworks>net462;netstandard2.0;net8.0</TargetFrameworks>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<LangVersion>latest</LangVersion>
@@ -46,10 +46,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Elastic.CommonSchema.Serilog" Version="1.5.3" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-		<PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="3.1.0" />
-		<PackageReference Include="Serilog.Sinks.Http" Version="8.0.0" />
+		<PackageReference Include="Elastic.CommonSchema.Serilog" Version="8.18.2" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="5.0.0" />
+		<PackageReference Include="Serilog.Sinks.Http" Version="9.2.0" />
 	</ItemGroup>
 
 	<ItemGroup>
